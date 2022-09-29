@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-extension View {
+public extension View {
     @ViewBuilder func handleError() -> some View {
         self.modifier(ErrorViewModifier())
     }
