@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension Data {
+internal extension Data {
     var prettyPrinted: String {
         guard let object = try? JSONSerialization.jsonObject(with: self, options: .mutableLeaves), let data = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted, .withoutEscapingSlashes]), let string = String(data: data, encoding: .utf8) else {
             return ""
@@ -16,8 +16,8 @@ extension Data {
     }
 }
 
-extension URLRequest {
-    public func cURL(pretty: Bool = false) -> String {
+internal extension URLRequest {
+    func cURL(pretty: Bool = false) -> String {
         let newLine = pretty ? "\\\n" : ""
         let method = (pretty ? "--request " : "-X ") + "\(self.httpMethod ?? "GET") \(newLine)"
         let url: String = (pretty ? "--url " : "") + "\'\(self.url?.absoluteString ?? "")\' \(newLine)"

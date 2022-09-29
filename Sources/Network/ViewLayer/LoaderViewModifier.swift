@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-extension View {
+public extension View {
     @ViewBuilder func presentLoader(isPresented: Bool) -> some View {
         if isPresented {
             self.modifier(LoaderViewModifier())

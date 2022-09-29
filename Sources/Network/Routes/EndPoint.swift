@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol EndPoint {
+public protocol EndPoint {
     var baseURL: URL? {get}
     var route: String {get}
     var method: RequestMethod {get}
@@ -17,7 +17,7 @@ protocol EndPoint {
     var id: CustomStringConvertible {get}
 }
 
-extension EndPoint {
+public extension EndPoint {
     var baseURL: URL? {
         return nil
     }
@@ -29,7 +29,7 @@ extension EndPoint {
     }
 }
 
-enum RequestMethod: String {
+public enum RequestMethod: String {
     case get = "GET"
     case post = "POST"
     case put = "PUT"

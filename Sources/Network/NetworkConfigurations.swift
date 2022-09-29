@@ -7,14 +7,14 @@
 
 import Foundation
 
-protocol NetworkConfigurations {
+public protocol NetworkConfigurations {
     var errorLayer: any ErrorConfigurations {get}
     var timeoutInterval: TimeInterval {get}
     var baseURL: URL? {get}
     var retryCount: Int {get}
 }
 
-extension NetworkConfigurations {
+public extension NetworkConfigurations {
     var timeoutInterval: TimeInterval {
         90
     }

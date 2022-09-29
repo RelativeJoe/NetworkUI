@@ -7,18 +7,27 @@
 
 import SwiftUI
 
-@MainActor class NetworkData: ObservableObject {
-    static let shared = NetworkData()
-    var loadingView: (() -> AnyView)?
-    var errorView: ((NetworkError) -> AnyView)?
-    @Published var retries: [String: Int] = [:]
-    @Published var isLoading = false
-    @Published var error: NetworkError? {
+@MainActor public class NetworkData: ObservableObject {
+    public static let shared = NetworkData()
+    internal var loadingView: (() -> AnyView)?
+    internal var errorView: ((NetworkError) -> AnyView)?
+    @Published internal var retries: [String: Int] = [:]
+    @Published public var isLoading = false
+    @Published public var error: NetworkError? {
         didSet {
             guard error != nil else {return}
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
                 self?.error = nil
             }
         }
+    }
+}
+
+public extension NetworkData {
+    static func build(@ViewBuilder view: @escaping (NetworkError) -> AnyView) {
+        shared.errorView = view
+    }
+    static func build(@ViewBuilder view: @escaping () -> AnyView) {
+        shared.loadingView = view
     }
 }

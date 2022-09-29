@@ -1,8 +1,8 @@
 import Foundation
 import Combine
 
-struct Network {
-    static var configurations: NetworkConfigurations!
+public struct Network {
+    internal static var configurations: NetworkConfigurations!
 //    @MainActor static func requestPublisher<T: EndPoint, Model: Codable>(endPoint: T, model: Model.Type, errorHandler: Bool = true, withLoader: Bool = true) -> AnyPublisher<BaseResponse<Model>, Never> {
 //        let request = try! requestBuilder(endPoint: endPoint)
 //        if withLoader {
@@ -18,7 +18,7 @@ struct Network {
 //            }.replaceError(with: BaseResponse.error(nil))
 //            .eraseToAnyPublisher()
 //    }
-    @MainActor static func request<T: EndPoint, Model: Codable>(endPoint: T, model: Model.Type, errorHandler: Bool = true, withLoader: Bool = true) async -> BaseResponse<Model> {
+    @MainActor public static func request<T: EndPoint, Model: Codable>(endPoint: T, model: Model.Type, errorHandler: Bool = true, withLoader: Bool = true) async -> BaseResponse<Model> {
         do {
             NetworkData.shared.retries[endPoint.id.description] = 1
             let request = try requestBuilder(endPoint: endPoint)
@@ -89,19 +89,19 @@ struct Network {
     }
 }
 
-struct BaseResponse<T: Codable>: Codable {
+public struct BaseResponse<T: Codable>: Codable {
 //MARK: - Properties
-    var error: Bool
-    var message: String?
-    var summary: String?
-    var data: T?
-    enum CodingKeys: String, CodingKey {
+    public var error: Bool
+    public var message: String?
+    public var summary: String?
+    public var data: T?
+    public enum CodingKeys: String, CodingKey {
         case error, message, summary, data
     }
-    static func error(_ error: NetworkError?) -> BaseResponse<T> {
+    public static func error(_ error: NetworkError?) -> BaseResponse<T> {
         return BaseResponse(error: true, message: error?.title, summary: error?.body)
     }
-    static func error(message: String, summary: String) -> BaseResponse<T> {
+    public static func error(message: String, summary: String) -> BaseResponse<T> {
         return BaseResponse(error: true, message: message, summary: summary)
     }
 }

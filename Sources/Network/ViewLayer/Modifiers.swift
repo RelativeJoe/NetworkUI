@@ -7,15 +7,15 @@
 
 import SwiftUI
 
-extension View {
+public extension View {
     func listen() -> some View {
         modifier(ViewDataModifier())
     }
 }
 
-struct ViewDataModifier: ViewModifier {
+internal struct ViewDataModifier: ViewModifier {
     @EnvironmentObject var data: NetworkData
-    func body(content: Content) -> some View {
+    internal func body(content: Content) -> some View {
         content
             .presentLoader(isPresented: data.isLoading)
             .handleError()
