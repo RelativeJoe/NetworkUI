@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-@MainActor public class NetworkData: ObservableObject {
+public class NetworkData: ObservableObject {
     public static let shared = NetworkData()
     internal var loadingView: (() -> AnyView)?
     internal var errorView: ((NetworkError) -> AnyView)?
