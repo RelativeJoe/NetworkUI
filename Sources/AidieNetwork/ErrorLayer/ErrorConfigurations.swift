@@ -8,11 +8,9 @@
 import SwiftUI
 
 public protocol ErrorConfigurations {
-    associatedtype Body: View
     func shouldDisplay(_ error: NetworkError) -> Bool
     func shouldRetry(_ error: NetworkError) -> Int?
     func handle(_ error: NetworkError)
-    func error(_ data: NetworkData) -> Body
 }
 
 public extension ErrorConfigurations {
