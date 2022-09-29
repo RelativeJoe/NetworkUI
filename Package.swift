@@ -4,21 +4,21 @@
 import PackageDescription
 
 let package = Package(
-    name: "Network",
+    name: "AidieNetwork",
     platforms: [
         .iOS(.v15),
         .macOS(.v12)
     ],
     products: [
         .library(
-            name: "Network",
-            targets: ["Network"]),
+            name: "AidieNetwork",
+            targets: ["AidieNetwork"]),
     ],
     dependencies: [
     ],
     targets: [
         .target(
-            name: "Network",
+            name: "AidieNetwork",
             dependencies: []),
     ]
 )
