@@ -18,4 +18,7 @@ public struct JSON {
         let data = try? JSONSerialization.data(withJSONObject: dictionary, options: .prettyPrinted)
         return JSON(data: data)
     }
+    public static func data(_ data: Data) -> JSON {
+        return JSON(data: data)
+    }
 }
