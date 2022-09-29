@@ -16,7 +16,6 @@ public struct JSON {
     }
     public static func dictionary(dictionary: Dictionary<String, Any>) -> JSON {
         let data = try? JSONSerialization.data(withJSONObject: dictionary, options: .prettyPrinted)
-        let encoder = JSONEncoder()
         return JSON(data: data)
     }
 }

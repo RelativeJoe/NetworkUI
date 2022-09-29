@@ -27,6 +27,9 @@ public extension EndPoint {
     var retryCount: Int? {
         return nil
     }
+    var id: String {
+        return route + method.rawValue
+    }
 }
 
 public enum RequestMethod: String {
