@@ -25,6 +25,6 @@ public extension ErrorConfigurations {
 }
 
 public struct NetworkError: Error {
-    var title: String?
-    var body: String?
+    public var title: String?
+    public var body: String?
 }
