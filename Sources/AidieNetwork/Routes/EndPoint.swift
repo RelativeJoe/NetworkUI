@@ -27,7 +27,7 @@ public extension EndPoint {
     var retryCount: Int? {
         return nil
     }
-    var id: String {
+    var id: CustomStringConvertible {
         return route + method.rawValue
     }
 }
