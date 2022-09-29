@@ -84,7 +84,7 @@ public struct Network {
         }
         return object
     }
-    static func set(configurations: NetworkConfigurations) {
+    public static func set(configurations: NetworkConfigurations) {
         Network.configurations = configurations
     }
 }
