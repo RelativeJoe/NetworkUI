@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol NetworkConfigurations {
-    var errorLayer: any ErrorConfigurations {get}
+    var errorLayer: ErrorConfigurations {get}
     var timeoutInterval: TimeInterval {get}
     var baseURL: URL? {get}
     var retryCount: Int {get}

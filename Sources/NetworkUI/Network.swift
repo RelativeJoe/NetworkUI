@@ -3,21 +3,22 @@ import Combine
 
 public struct Network {
     internal static var configurations: NetworkConfigurations!
-//    @MainActor static func requestPublisher<T: EndPoint, Model: Codable>(endPoint: T, model: Model.Type, errorHandler: Bool = true, withLoader: Bool = true) -> AnyPublisher<BaseResponse<Model>, Never> {
-//        let request = try! requestBuilder(endPoint: endPoint)
-//        if withLoader {
-//            ViewData.shared.isLoading = true
-//        }
-//        return URLSession.shared.dataTaskPublisher(for: request)
-//            .map { result in
-//                do {
-//                    return try resultBuilder(result.data, model: model, withLoader: withLoader)
-//                }catch {
-//                    return errorBuilder(endPoint: endPoint, error: error, model: model, withLoader: withLoader, errorHandler: errorHandler)
-//                }
-//            }.replaceError(with: BaseResponse.error(nil))
-//            .eraseToAnyPublisher()
-//    }
+    @MainActor static func requestPublisher<T: EndPoint, Model: Codable>(endPoint: T, model: Model.Type, errorHandler: Bool = true, withLoader: Bool = true) -> AnyPublisher<BaseResponse<Model>, Never> {
+        let request = try! requestBuilder(endPoint: endPoint)
+        if withLoader {
+            NetworkData.shared.isLoading = true
+        }
+        return URLSession.shared.dataTaskPublisher(for: request)
+            .map { result in
+                do {
+                    return try resultBuilder(result.data, model: model, withLoader: withLoader)
+                }catch {
+                    return errorBuilder(endPoint: endPoint, error: error, model: model, withLoader: withLoader, errorHandler: errorHandler)
+                }
+            }.replaceError(with: BaseResponse.error(nil))
+            .eraseToAnyPublisher()
+    }
+    @available(iOS 15.0, *)
     @MainActor public static func request<T: EndPoint, Model: Codable>(endPoint: T, model: Model.Type, errorHandler: Bool = true, withLoader: Bool = true) async -> BaseResponse<Model> {
         do {
             NetworkData.shared.retries[endPoint.id.description] = 1
@@ -49,21 +50,21 @@ public struct Network {
         return request
     }
 //MARK: - Error Builder
-    @MainActor private static func errorBuilder<T: EndPoint, Model: Codable>(endPoint: T, error: Error, model: Model.Type, withLoader: Bool, errorHandler: Bool) async -> BaseResponse<Model> {
+    @MainActor private static func errorBuilder<T: EndPoint, Model: Codable>(endPoint: T, error: Error, model: Model.Type, withLoader: Bool, errorHandler: Bool) -> BaseResponse<Model> {
         if withLoader {
             NetworkData.shared.isLoading = false
         }
         guard let networkError = error as? NetworkError else {
             return BaseResponse.error(nil)
         }
-        let retryCount = endPoint.retryCount ?? configurations.retryCount
-        let currentCount = NetworkData.shared.retries[endPoint.id.description] ?? 0
-        if (configurations.errorLayer.shouldRetry(networkError) != nil) && retryCount > currentCount {
-            NetworkData.shared.retries[endPoint.id.description]! += 1
-            return await request(endPoint: endPoint, model: model, errorHandler: errorHandler, withLoader: withLoader)
-        }else {
-            NetworkData.shared.retries.removeValue(forKey: endPoint.id.description)
-        }
+//        let retryCount = endPoint.retryCount ?? configurations.retryCount
+//        let currentCount = NetworkData.shared.retries[endPoint.id.description] ?? 0
+//        if (configurations.errorLayer.shouldRetry(networkError) != nil) && retryCount > currentCount {
+//            NetworkData.shared.retries[endPoint.id.description]! += 1
+//            return await request(endPoint: endPoint, model: model, errorHandler: errorHandler, withLoader: withLoader)
+//        }else {
+//            NetworkData.shared.retries.removeValue(forKey: endPoint.id.description)
+//        }
         if errorHandler && configurations.errorLayer.shouldDisplay(networkError) {
             NetworkData.shared.error = networkError
         }

@@ -24,12 +24,12 @@ public class NetworkData: ObservableObject {
 }
 
 public extension NetworkData {
-    static func build(@ViewBuilder view: @escaping (NetworkError) -> some View) {
+    static func build<Body: View>(@ViewBuilder view: @escaping (NetworkError) -> Body) {
         shared.errorView = { error in
             AnyView(view(error))
         }
     }
-    static func build(@ViewBuilder view: @escaping () -> some View) {
+    static func build<Body: View>(@ViewBuilder view: @escaping () -> Body) {
         shared.loadingView = {
             AnyView(view())
         }
