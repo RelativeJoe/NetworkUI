@@ -81,7 +81,7 @@ public struct Network {
             NetworkData.shared.isLoading = false
         }
         guard !object.error else {
-            throw NetworkError(title: object.message, body: object.summary)
+            throw NetworkError(title: object.title, body: object.body)
         }
         return object
     }
@@ -97,12 +97,12 @@ public struct BaseResponse<T: Codable>: Codable {
     public var title: String?
     public var data: T?
     public enum CodingKeys: String, CodingKey {
-        case error, message, summary, data
+        case error, body, title, data
     }
     public static func error(_ error: NetworkError?) -> BaseResponse<T> {
-        return BaseResponse(error: true, message: error?.title, summary: error?.body)
+        return BaseResponse(error: true, body: error?.body, title: error?.title)
     }
-    public static func error(message: String, summary: String) -> BaseResponse<T> {
-        return BaseResponse(error: true, message: message, summary: summary)
+    public static func error(body: String, title: String) -> BaseResponse<T> {
+        return BaseResponse(error: true, body: body, title: title)
     }
 }
