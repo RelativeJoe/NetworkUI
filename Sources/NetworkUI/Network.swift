@@ -93,8 +93,8 @@ public struct Network {
 public struct BaseResponse<T: Codable>: Codable {
 //MARK: - Properties
     public var error: Bool
-    public var message: String?
-    public var summary: String?
+    public var body: String?
+    public var title: String?
     public var data: T?
     public enum CodingKeys: String, CodingKey {
         case error, message, summary, data
