@@ -1,23 +1,20 @@
 // swift-tools-version: 5.5
-// The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
 
 let package = Package(
     name: "NetworkUI",
     platforms: [
-        .iOS(.v13)
+        .iOS(.v13),
+        .macOS(.v10_15),
+        .watchOS(.v6)
     ],
     products: [
-        .library(
-            name: "NetworkUI",
-            targets: ["NetworkUI"]),
+        .library(name: "NetworkUI", targets: ["NetworkUI"]),
     ],
     dependencies: [
     ],
     targets: [
-        .target(
-            name: "NetworkUI",
-            dependencies: []),
+        .target(name: "NetworkUI", dependencies: []),
     ]
 )
