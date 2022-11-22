@@ -7,9 +7,9 @@
 
 import Foundation
 
-internal extension Network {
+extension Network {
     @available(iOS 15.0, macOS 12.0, *)
-    @MainActor static func errorBuilder<T: EndPoint, Model: Codable>(endPoint: T, error: Error, model: Model.Type, withLoader: Bool, errorHandler: Bool) async -> BaseResponse<Model> {
+    @MainActor internal static func errorBuilder<T: EndPoint, Model: Codable>(endPoint: T, error: Error, model: Model.Type, withLoader: Bool, errorHandler: Bool) async -> BaseResponse<Model> {
         if withLoader {
             NetworkData.shared.isLoading = false
         }
@@ -30,7 +30,7 @@ internal extension Network {
         return BaseResponse.error(networkError)
     }
     @available(iOS 15.0, macOS 12.0, *)
-    @MainActor static func request<T: EndPoint, Model: Codable>(endPoint: T, model: Model.Type, errorHandler: Bool = true, withLoader: Bool = true) async -> BaseResponse<Model> {
+    @MainActor public static func request<T: EndPoint, Model: Codable>(endPoint: T, model: Model.Type, errorHandler: Bool = true, withLoader: Bool = true) async -> BaseResponse<Model> {
         do {
             NetworkData.shared.retries[endPoint.id.description] = 1
             let request = try requestBuilder(endPoint: endPoint)
