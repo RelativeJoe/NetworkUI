@@ -91,8 +91,8 @@ public extension URLRoute {
     }
 }
 
-//MARK: - Internal Functions
-internal extension URLRoute {
+//MARK: - Public Functions
+public extension URLRoute {
     func applied(to url: URL?) -> URL? {
         var newURL = url
         components.forEach { item in
