@@ -21,7 +21,7 @@ public struct URLRoute {
         self.components = components
         self.postComponents = postComponents
     }
-    public func with(_ component: URLable, isPost: Bool) -> Self {
+    public func with(_ component: URLable, isPost: Bool = false) -> Self {
         var newComponents = components
         var newPostComponents = postComponents
         if isPost {
@@ -31,7 +31,7 @@ public struct URLRoute {
         }
         return URLRoute(components: newComponents, postComponents: postComponents)
     }
-    public func with(_ item: Self, isPost: Bool) -> Self {
+    public func with(_ item: Self, isPost: Bool = false) -> Self {
         var newComponents = components
         var newPostComponents = postComponents
         if isPost {
