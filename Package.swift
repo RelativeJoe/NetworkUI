@@ -9,15 +9,11 @@ let package = Package(
         .iOS(.v16)
     ],
     products: [
-        .library(
-            name: "NetworkUI",
-            targets: ["NetworkUI"]),
+        .library(name: "NetworkUI", targets: ["NetworkUI"]),
     ],
     dependencies: [
     ],
     targets: [
-        .target(
-            name: "NetworkUI",
-            dependencies: []),
+        .target(name: "NetworkUI", dependencies: []),
     ]
 )

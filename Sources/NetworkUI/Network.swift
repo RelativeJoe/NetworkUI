@@ -33,7 +33,7 @@ public struct Network {
         }
     }
 //MARK: - Request Builder
-    private static func requestBuilder<T: EndPoint>(endPoint: T) throws -> URLRequest {
+    internal static func requestBuilder<T: EndPoint>(endPoint: T) throws -> URLRequest {
         guard let baseURL = endPoint.baseURL ?? configurations.baseURL else {
             throw NetworkError(title: "Error", body: "No Base URL found!")
         }
@@ -45,35 +45,14 @@ public struct Network {
         request.configure(headers: endPoint.headers)
         if let data = endPoint.body?.data {
             request.httpBody = data
-        }
+        } 
         print("------Begin Request------")
         print(request.cURL(pretty: true))
         print("------End Request------")
         return request
     }
-//MARK: - Error Builder
-    @MainActor private static func errorBuilder<T: EndPoint, Model: Codable>(endPoint: T, error: Error, model: Model.Type, withLoader: Bool, errorHandler: Bool) -> BaseResponse<Model> {
-        if withLoader {
-            NetworkData.shared.isLoading = false
-        }
-        guard let networkError = error as? NetworkError else {
-            return BaseResponse.error(nil)
-        }
-//        let retryCount = endPoint.retryCount ?? configurations.retryCount
-//        let currentCount = NetworkData.shared.retries[endPoint.id.description] ?? 0
-//        if (configurations.errorLayer.shouldRetry(networkError) != nil) && retryCount > currentCount {
-//            NetworkData.shared.retries[endPoint.id.description]! += 1
-//            return await request(endPoint: endPoint, model: model, errorHandler: errorHandler, withLoader: withLoader)
-//        }else {
-//            NetworkData.shared.retries.removeValue(forKey: endPoint.id.description)
-//        }
-        if errorHandler && configurations.errorLayer.shouldDisplay(networkError) {
-            NetworkData.shared.error = networkError
-        }
-        return BaseResponse.error(networkError)
-    }
 //MARK: - Result Builder
-    @MainActor private static func resultBuilder<Model: Codable>(_ data: Data, model: Model.Type, withLoader: Bool) throws -> BaseResponse<Model> {
+    @MainActor internal static func resultBuilder<Model: Codable>(_ data: Data, model: Model.Type, withLoader: Bool) throws -> BaseResponse<Model> {
         print("------Begin Response------")
         print(data.prettyPrinted)
         print("------End Response------")
