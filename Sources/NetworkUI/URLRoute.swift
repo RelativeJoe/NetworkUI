@@ -39,7 +39,7 @@ public extension URLRoute {
         }else {
             newComponents.append(component)
         }
-        return URLRoute(components: newComponents, postComponents: postComponents)
+        return URLRoute(components: newComponents, postComponents: newPostComponents)
     }
     func appending(_ item: Self, isPost: Bool = false) -> Self {
         var newComponents = components
