@@ -9,7 +9,7 @@ import Foundation
 
 public protocol EndPoint {
     var baseURL: URL? {get}
-    var route: String {get}
+    var route: URLRoute {get}
     var method: RequestMethod {get}
     var body: JSON? {get}
     var headers: [Header] {get}
@@ -28,7 +28,7 @@ public extension EndPoint {
         return nil
     }
     var id: CustomStringConvertible {
-        return route + method.rawValue
+        return UUID().uuidString
     }
 }
 

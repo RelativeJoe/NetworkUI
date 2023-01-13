@@ -29,7 +29,7 @@ public struct Network {
             let networkResult = try await URLSession.shared.data(for: request)
             return try resultBuilder(networkResult.0, model: model, withLoader: withLoader)
         }catch {
-            return await errorBuilder(endPoint: endPoint, error: error, model: model, withLoader: withLoader, errorHandler: errorHandler)
+            return errorBuilder(endPoint: endPoint, error: error, model: model, withLoader: withLoader, errorHandler: errorHandler)
         }
     }
 //MARK: - Request Builder
@@ -37,7 +37,9 @@ public struct Network {
         guard let baseURL = endPoint.baseURL ?? configurations.baseURL else {
             throw NetworkError(title: "Error", body: "No Base URL found!")
         }
-        let requestURL = baseURL.appendingPathComponent(endPoint.route)
+        guard let requestURL = endPoint.route.reproccessed(with: configurations.reprocess(url: endPoint.route.applied(to: baseURL))) else {
+            throw NetworkError(title: "Error", body: "The constructed URL is invalid!")
+        }
         var request = URLRequest(url: requestURL, timeoutInterval:  configurations.timeoutInterval)
         request.httpMethod = endPoint.method.rawValue
         request.configure(headers: endPoint.headers)
