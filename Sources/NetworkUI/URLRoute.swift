@@ -37,7 +37,7 @@ public extension URLRoute {
         if isPost {
              newPostComponents.append(component)
         }else {
-            postComponents.append(component)
+            newComponents.append(component)
         }
         return URLRoute(components: newComponents, postComponents: postComponents)
     }
