@@ -10,9 +10,15 @@ import Foundation
 public protocol URLable {
 }
 
+extension String: URLable {}
+
+extension URLQueryItem: URLable {}
+
 public struct URLRoute {
+//MARK: - Properties
     internal var components: [URLable]
     internal var postComponents: [URLable]
+//MARK: - Initializers
     public init(from item: URLable) {
         self.components = [item]
         self.postComponents = []
@@ -21,7 +27,11 @@ public struct URLRoute {
         self.components = components
         self.postComponents = postComponents
     }
-    public func with(_ component: URLable, isPost: Bool = false) -> Self {
+}
+
+//MARK: - Returning Functions
+public extension URLRoute {
+    func appending(_ component: URLable, isPost: Bool = false) -> Self {
         var newComponents = components
         var newPostComponents = postComponents
         if isPost {
@@ -31,7 +41,7 @@ public struct URLRoute {
         }
         return URLRoute(components: newComponents, postComponents: postComponents)
     }
-    public func with(_ item: Self, isPost: Bool = false) -> Self {
+    func appending(_ item: Self, isPost: Bool = false) -> Self {
         var newComponents = components
         var newPostComponents = postComponents
         if isPost {
@@ -41,7 +51,49 @@ public struct URLRoute {
         }
         return URLRoute(components: newComponents, postComponents: newPostComponents)
     }
-    internal func applied(to url: URL?) -> URL? {
+}
+
+//MARK: - Returning Functions Using Closures
+public extension URLRoute {
+    func appending(component: @escaping () throws -> URLable, isPost: Bool = false) rethrows -> Self {
+        return appending(try component(), isPost: isPost)
+    }
+    func appending(item: @escaping () throws -> Self, isPost: Bool = false) rethrows -> Self {
+        return appending(try item(), isPost: isPost)
+    }
+}
+
+//MARK: - Mutating Functions
+public extension URLRoute {
+    mutating func append(_ component: URLable, isPost: Bool = false) {
+        if isPost {
+            postComponents.append(component)
+        }else {
+            components.append(component)
+        }
+    }
+    mutating func append(_ item: Self, isPost: Bool = false) {
+        if isPost {
+            postComponents.append(contentsOf: item.components)
+        }else {
+            components.append(contentsOf: item.components)
+        }
+    }
+}
+
+//MARK: - Mutating Functions Using Closures
+public extension URLRoute {
+    mutating func append(component: @escaping () throws -> URLable, isPost: Bool = false) rethrows {
+        append(try component(), isPost: isPost)
+    }
+    mutating func append(item: @escaping () throws -> Self, isPost: Bool = false) rethrows {
+        append(try item(), isPost: isPost)
+    }
+}
+
+//MARK: - Internal Functions
+internal extension URLRoute {
+    func applied(to url: URL?) -> URL? {
         var newURL = url
         components.forEach { item in
             if let string = item as? String {
@@ -52,7 +104,7 @@ public struct URLRoute {
         }
         return newURL
     }
-    internal func reproccessed(with url: URL?) -> URL? {
+    func reproccessed(with url: URL?) -> URL? {
         var newURL = url
         postComponents.forEach { item in
             if let string = item as? String {
@@ -63,10 +115,4 @@ public struct URLRoute {
         }
         return newURL
     }
-}
-
-extension String: URLable {
-}
-
-extension URLQueryItem: URLable {
 }
