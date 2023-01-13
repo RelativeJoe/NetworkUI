@@ -35,9 +35,9 @@ public extension URLRoute {
         var newComponents = components
         var newPostComponents = postComponents
         if isPost {
-            newComponents.append(component)
+             newPostComponents.append(component)
         }else {
-            newPostComponents.append(component)
+            postComponents.append(component)
         }
         return URLRoute(components: newComponents, postComponents: postComponents)
     }
