@@ -3,35 +3,6 @@ import Combine
 
 public struct Network {
     internal static var configurations: NetworkConfigurations!
-    @MainActor static func requestPublisher<T: EndPoint, Model: Codable>(endPoint: T, model: Model.Type, errorHandler: Bool = true, withLoader: Bool = true) -> AnyPublisher<BaseResponse<Model>, Never> {
-        let request = try! requestBuilder(endPoint: endPoint)
-        if withLoader {
-            NetworkData.shared.isLoading = true
-        }
-        return URLSession.shared.dataTaskPublisher(for: request)
-            .map { result in
-                do {
-                    return try resultBuilder(result.data, model: model, withLoader: withLoader)
-                }catch {
-                    return errorBuilder(endPoint: endPoint, error: error, model: model, withLoader: withLoader, errorHandler: errorHandler)
-                }
-            }.replaceError(with: BaseResponse.error(nil))
-            .eraseToAnyPublisher()
-    }
-    @available(iOS 15.0, *)
-    @MainActor public static func request<T: EndPoint, Model: Codable>(endPoint: T, model: Model.Type, errorHandler: Bool = true, withLoader: Bool = true) async -> BaseResponse<Model> {
-        do {
-            NetworkData.shared.retries[endPoint.id.description] = 1
-            let request = try requestBuilder(endPoint: endPoint)
-            if withLoader {
-                NetworkData.shared.isLoading = true
-            }
-            let networkResult = try await URLSession.shared.data(for: request)
-            return try resultBuilder(networkResult.0, model: model, withLoader: withLoader)
-        }catch {
-            return errorBuilder(endPoint: endPoint, error: error, model: model, withLoader: withLoader, errorHandler: errorHandler)
-        }
-    }
 //MARK: - Request Builder
     internal static func requestBuilder<T: EndPoint>(endPoint: T) throws -> URLRequest {
         guard let baseURL = endPoint.baseURL ?? configurations.baseURL else {
