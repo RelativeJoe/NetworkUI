@@ -9,7 +9,7 @@ import Foundation
 import Combine
 
 extension Network {
-    @MainActor public static func requestPublisher<T: EndPoint, Model: Codable>(endPoint: T, model: Model.Type, withLoader: Bool = true, handled: Bool = true) -> AnyPublisher<Response<Model>, Error> {
+    @MainActor public static func requestPublisher<T: EndPoint, Model: Codable>(endPoint: T, model: Model.Type, withLoader: Bool = true, handled: Bool = true) -> AnyPublisher<Model, Error> {
         let request = try! requestBuilder(endPoint: endPoint)
         if withLoader {
             NetworkData.shared.isLoading = true
