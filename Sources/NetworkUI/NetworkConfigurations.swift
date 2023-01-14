@@ -12,6 +12,7 @@ public protocol NetworkConfigurations {
     var timeoutInterval: TimeInterval {get}
     var baseURL: URL? {get}
     var retryCount: Int {get}
+    var decoder: JSONDecoder {get}
     func reprocess(url: URL?) -> URL?
 }
 
@@ -24,6 +25,9 @@ public extension NetworkConfigurations {
     }
     var retryCount: Int {
         1
+    }
+    var decoder: JSONDecoder {
+        JSONDecoder()
     }
     func reprocess(url: URL?) -> URL? {
         return url

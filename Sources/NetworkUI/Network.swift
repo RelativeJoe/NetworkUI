@@ -27,11 +27,10 @@ public struct Network {
         print("------Begin Response------")
         print(data.prettyPrinted)
         print("------End Response------")
-        let decoder = JSONDecoder()
         if withLoader {
             NetworkData.shared.isLoading = false
         }
-        return try decoder.decode(Model.self, from: data)
+        return try configurations.decoder.decode(Model.self, from: data)
     }
     public static func set(configurations: NetworkConfigurations) {
         Network.configurations = configurations
