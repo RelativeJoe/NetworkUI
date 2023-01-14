@@ -23,19 +23,22 @@ public struct Network {
         return request
     }
 //MARK: - Result Builder
-    @MainActor internal static func resultBuilder<Model: Codable>(_ data: Data, model: Model.Type, withLoader: Bool) throws -> BaseResponse<Model> {
+    @MainActor internal static func resultBuilder<Model: Codable>(_ data: Data, model: Model.Type, withLoader: Bool) throws -> Response<Model> {
         print("------Begin Response------")
         print(data.prettyPrinted)
         print("------End Response------")
         let decoder = JSONDecoder()
-        let object = try decoder.decode(BaseResponse<Model>.self, from: data)
+        if let modelToDecode = configurations.baseResponse(for: Model.self) {
+            let object = try decoder.decode(modelToDecode, from: data)
+            if let error = try object.validate() {
+                throw error
+            }
+            return .base(object)
+        }
         if withLoader {
             NetworkData.shared.isLoading = false
         }
-        guard !object.error else {
-            throw NetworkError(title: object.title, body: object.body)
-        }
-        return object
+        return .model(try decoder.decode(model, from: data))
     }
     public static func set(configurations: NetworkConfigurations) {
         Network.configurations = configurations
@@ -56,5 +59,31 @@ public struct BaseResponse<T: Codable>: Codable {
     }
     public static func error(body: String, title: String) -> BaseResponse<T> {
         return BaseResponse(error: true, body: body, title: title)
+    }
+}
+
+public protocol Responsable: Codable {
+    associatedtype Model: Codable
+    func validate() throws -> Error?
+}
+
+public enum Response<Model: Codable> {
+    case base(any Responsable)
+    case model(Model)
+    public var model: Model? {
+        switch self {
+            case .base:
+                return nil
+            case .model(let model):
+                return model
+        }
+    }
+    public var baseModel: (any Responsable)? {
+        switch self {
+            case .base(let baseModel):
+                return baseModel
+            case .model:
+                return nil
+        }
     }
 }

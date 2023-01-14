@@ -8,19 +8,19 @@
 import SwiftUI
 
 public protocol ErrorConfigurations {
-    func shouldDisplay(_ error: NetworkError) -> Bool
-    func shouldRetry(_ error: NetworkError) -> Int?
-    func handle(_ error: NetworkError)
+    func shouldDisplay(_ error: Error) -> Bool
+    func shouldRetry(_ error: Error) -> Int?
+    func handle(_ error: Error)
 }
 
 public extension ErrorConfigurations {
-    func shouldDisplay(_ error: NetworkError) -> Bool {
+    func shouldDisplay(_ error: Error) -> Bool {
         return true
     }
-    func shouldRetry(_ error: NetworkError) -> Int? {
+    func shouldRetry(_ error: Error) -> Int? {
         return nil
     }
-    func handle(_ error: NetworkError) {
+    func handle(_ error: Error) {
     }
 }
 

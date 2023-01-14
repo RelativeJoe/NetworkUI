@@ -31,7 +31,10 @@ public struct URLRoute {
 
 //MARK: - Returning Functions
 public extension URLRoute {
-    func appending(_ component: URLable, isPost: Bool = false) -> Self {
+    func appending(_ component: (any URLable)?, isPost: Bool = false) -> Self {
+        guard let component else {
+            return self
+        }
         var newComponents = components
         var newPostComponents = postComponents
         if isPost {
@@ -41,7 +44,10 @@ public extension URLRoute {
         }
         return URLRoute(components: newComponents, postComponents: newPostComponents)
     }
-    func appending(_ item: Self, isPost: Bool = false) -> Self {
+    func appending(_ item: Self?, isPost: Bool = false) -> Self {
+        guard let item else {
+            return self
+        }
         var newComponents = components
         var newPostComponents = postComponents
         if isPost {
@@ -55,24 +61,26 @@ public extension URLRoute {
 
 //MARK: - Returning Functions Using Closures
 public extension URLRoute {
-    func appending(component: @escaping () throws -> URLable, isPost: Bool = false) rethrows -> Self {
+    func appending(component: @escaping () throws -> (any URLable)?, isPost: Bool = false) rethrows -> Self {
         return appending(try component(), isPost: isPost)
     }
-    func appending(item: @escaping () throws -> Self, isPost: Bool = false) rethrows -> Self {
+    func appending(item: @escaping () throws -> Self?, isPost: Bool = false) rethrows -> Self {
         return appending(try item(), isPost: isPost)
     }
 }
 
 //MARK: - Mutating Functions
 public extension URLRoute {
-    mutating func append(_ component: URLable, isPost: Bool = false) {
+    mutating func append(_ component: (any URLable)?, isPost: Bool = false) {
+        guard let component else {return}
         if isPost {
             postComponents.append(component)
         }else {
             components.append(component)
         }
     }
-    mutating func append(_ item: Self, isPost: Bool = false) {
+    mutating func append(_ item: Self?, isPost: Bool = false) {
+        guard let item else {return}
         if isPost {
             postComponents.append(contentsOf: item.components)
         }else {
@@ -83,10 +91,10 @@ public extension URLRoute {
 
 //MARK: - Mutating Functions Using Closures
 public extension URLRoute {
-    mutating func append(component: @escaping () throws -> URLable, isPost: Bool = false) rethrows {
+    mutating func append(component: @escaping () throws -> (any URLable)?, isPost: Bool = false) rethrows {
         append(try component(), isPost: isPost)
     }
-    mutating func append(item: @escaping () throws -> Self, isPost: Bool = false) rethrows {
+    mutating func append(item: @escaping () throws -> Self?, isPost: Bool = false) rethrows {
         append(try item(), isPost: isPost)
     }
 }

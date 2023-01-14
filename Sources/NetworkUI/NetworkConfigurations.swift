@@ -13,6 +13,7 @@ public protocol NetworkConfigurations {
     var baseURL: URL? {get}
     var retryCount: Int {get}
     func reprocess(url: URL?) -> URL?
+    func baseResponse<Model: Codable>(for model: Model.Type) -> (any Responsable.Type)?
 }
 
 public extension NetworkConfigurations {
@@ -27,5 +28,8 @@ public extension NetworkConfigurations {
     }
     func reprocess(url: URL?) -> URL? {
         return url
+    }
+    func baseResponse<Model: Codable>(for model: Model.Type) -> (any Responsable.Type)? {
+        return nil
     }
 }
