@@ -24,7 +24,8 @@ public extension ErrorConfigurations {
     }
 }
 
-public struct NetworkError: Error {
+public struct NetworkError: Error, Identifiable {
+    public var id = UUID()
     public var title: String?
     public var body: String?
 }
