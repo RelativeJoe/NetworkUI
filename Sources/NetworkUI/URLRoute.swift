@@ -14,7 +14,7 @@ extension String: URLable {}
 
 extension URLQueryItem: URLable {}
 
-public struct URLRoute {
+public struct URLRoute: URLable {
 //MARK: - Properties
     internal var components: [URLable]
     internal var postComponents: [URLable]
@@ -44,28 +44,12 @@ public extension URLRoute {
         }
         return URLRoute(components: newComponents, postComponents: newPostComponents)
     }
-    func appending(_ item: Self?, isPost: Bool = false) -> Self {
-        guard let item else {
-            return self
-        }
-        var newComponents = components
-        var newPostComponents = postComponents
-        if isPost {
-            newPostComponents.append(contentsOf: item.components)
-        }else {
-            newComponents.append(contentsOf: item.components)
-        }
-        return URLRoute(components: newComponents, postComponents: newPostComponents)
-    }
 }
 
 //MARK: - Returning Functions Using Closures
 public extension URLRoute {
-    func appending(component: @escaping () throws -> (any URLable)?, isPost: Bool = false) rethrows -> Self {
+    func appending(isPost: Bool = false, component: @escaping () throws -> (any URLable)?) rethrows -> Self {
         return appending(try component(), isPost: isPost)
-    }
-    func appending(item: @escaping () throws -> Self?, isPost: Bool = false) rethrows -> Self {
-        return appending(try item(), isPost: isPost)
     }
 }
 
@@ -79,23 +63,12 @@ public extension URLRoute {
             components.append(component)
         }
     }
-    mutating func append(_ item: Self?, isPost: Bool = false) {
-        guard let item else {return}
-        if isPost {
-            postComponents.append(contentsOf: item.components)
-        }else {
-            components.append(contentsOf: item.components)
-        }
-    }
 }
 
 //MARK: - Mutating Functions Using Closures
 public extension URLRoute {
-    mutating func append(component: @escaping () throws -> (any URLable)?, isPost: Bool = false) rethrows {
+    mutating func append(isPost: Bool = false, component: @escaping () throws -> (any URLable)?) rethrows {
         append(try component(), isPost: isPost)
-    }
-    mutating func append(item: @escaping () throws -> Self?, isPost: Bool = false) rethrows {
-        append(try item(), isPost: isPost)
     }
 }
 
@@ -108,6 +81,8 @@ public extension URLRoute {
                 newURL?.append(path: string)
             }else if let parameter = item as? URLQueryItem {
                 newURL?.append(queryItems: [parameter])
+            }else if let route = item as? URLRoute {
+                newURL = route.applied(to: url)
             }
         }
         return newURL
@@ -119,6 +94,8 @@ public extension URLRoute {
                 newURL?.append(path: string)
             }else if let parameter = item as? URLQueryItem {
                 newURL?.append(queryItems: [parameter])
+            }else if let route = item as? URLRoute {
+                newURL = route.applied(to: url)
             }
         }
         return newURL
