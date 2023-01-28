@@ -36,7 +36,7 @@ extension Network {
                 NetworkData.shared.isLoading = true
             }
             let networkResult = try await URLSession.shared.data(for: request)
-            return try resultBuilder(networkResult.0, model: Model.self, withLoader: withLoader)
+            return try resultBuilder(networkResult.0, model: Model.self, withLoader: withLoader, request: request)
         }catch {
             return try await errorBuilder(endPoint: endPoint, error: error, model: Model.self, withLoader: withLoader, handled: handled)
         }

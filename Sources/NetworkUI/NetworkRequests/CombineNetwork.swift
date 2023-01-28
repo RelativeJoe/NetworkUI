@@ -17,7 +17,7 @@ extension Network {
         return URLSession.shared.dataTaskPublisher(for: request)
             .tryMap { result in
                 do {
-                    return try resultBuilder(result.data, model: Model.self, withLoader: withLoader)
+                    return try resultBuilder(result.data, model: Model.self, withLoader: withLoader, request: request)
                 }catch {
                     throw errorBuilderPublisher(endPoint: endPoint, error: error, model: model, withLoader: withLoader, handled: handled)
                 }

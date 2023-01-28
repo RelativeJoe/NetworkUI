@@ -16,14 +16,14 @@ public struct Network {
         request.configure(headers: endPoint.headers)
         if let data = endPoint.body?.data {
             request.httpBody = data
-        } 
-        print("------Begin Request------")
-        print(request.cURL(pretty: true))
-        print("------End Request------")
+        }
         return request
     }
 //MARK: - Result Builder
-    @MainActor internal static func resultBuilder<Model: Codable>(_ data: Data, model: Model.Type, withLoader: Bool) throws -> Model {
+    @MainActor internal static func resultBuilder<Model: Codable>(_ data: Data, model: Model.Type, withLoader: Bool, request: URLRequest) throws -> Model {
+        print("------Begin Request------")
+        print(request.cURL(pretty: true))
+        print("------End Request------")
         print("------Begin Response------")
         print(data.prettyPrinted)
         print("------End Response------")
