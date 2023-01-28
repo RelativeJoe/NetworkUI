@@ -41,4 +41,23 @@ extension Network {
             return try await errorBuilder(endPoint: endPoint, error: error, model: Model.self, withLoader: withLoader, handled: handled)
         }
     }
+    @MainActor public static func task<T: EndPoint, Model: Codable>(for endPoint: T, model: Model.Type, handled: Bool = true, withLoader: Bool = true) async throws -> Task<Model, Error> {
+        let task = Task { () -> Model in
+            do {
+                NetworkData.shared.retries[endPoint.id.description] = (NetworkData.shared.retries[endPoint.id.description] ?? -1) + 1
+                let request = try requestBuilder(endPoint: endPoint)
+                if withLoader {
+                    NetworkData.shared.isLoading = true
+                }
+                let networkResult = try await URLSession.shared.data(for: request)
+                guard !Task.isCancelled else {
+                    throw NetworkError.cancelled
+                }
+                return try resultBuilder(networkResult.0, model: Model.self, withLoader: withLoader, request: request)
+            }catch {
+                return try await errorBuilder(endPoint: endPoint, error: error, model: Model.self, withLoader: withLoader, handled: handled)
+            }
+        }
+        return task
+    }
 }
