@@ -28,5 +28,5 @@ public struct NetworkError: Error, Identifiable, Equatable, Hashable, Codable {
     public var id = UUID()
     public var title: String?
     public var body: String?
-    static let cancelled = NetworkError(title: "NetworkUI Cancelled", body: "NetworkUI Cancelled")
+    public static let cancelled = NetworkError(title: "NetworkUI Cancelled", body: "NetworkUI Cancelled")
 }
