@@ -28,7 +28,7 @@ extension Network {
         }
         throw error
     }
-    public static func request<T: EndPoint, Model: Codable>(for endPoint: T, model: Model.Type, handled: Bool = true, withLoader: Bool = true) async throws -> Model {
+    nonisolated public static func request<T: EndPoint, Model: Codable>(for endPoint: T, model: Model.Type, handled: Bool = true, withLoader: Bool = true) async throws -> Model {
         do {
             NetworkData.shared.retries[endPoint.id.description] = (NetworkData.shared.retries[endPoint.id.description] ?? -1) + 1
             let request = try requestBuilder(endPoint: endPoint)
@@ -41,7 +41,7 @@ extension Network {
             return try await errorBuilder(endPoint: endPoint, error: error, model: Model.self, withLoader: withLoader, handled: handled)
         }
     }
-    public static func task<T: EndPoint, Model: Codable>(for endPoint: T, model: Model.Type, handled: Bool = true, withLoader: Bool = true) async throws -> Task<Model, Error> {
+    nonisolated public static func task<T: EndPoint, Model: Codable>(for endPoint: T, model: Model.Type, handled: Bool = true, withLoader: Bool = true) async throws -> Task<Model, Error> {
         let task = Task { () -> Model in
             do {
                 NetworkData.shared.retries[endPoint.id.description] = (NetworkData.shared.retries[endPoint.id.description] ?? -1) + 1
