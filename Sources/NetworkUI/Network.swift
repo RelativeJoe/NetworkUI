@@ -1,7 +1,7 @@
 import Foundation
 import Combine
 
-public struct Network {
+public actor Network {
     internal static var configurations: NetworkConfigurations!
 //MARK: - Request Builder
     internal static func requestBuilder<T: EndPoint>(endPoint: T) throws -> URLRequest {
@@ -20,7 +20,7 @@ public struct Network {
         return request
     }
 //MARK: - Result Builder
-    @MainActor internal static func resultBuilder<Model: Codable>(_ data: Data, model: Model.Type, withLoader: Bool, request: URLRequest) throws -> Model {
+     internal static func resultBuilder<Model: Codable>(_ data: Data, model: Model.Type, withLoader: Bool, request: URLRequest) throws -> Model {
         print("------Begin Request------")
         print(request.cURL(pretty: true))
         print("------End Request------")

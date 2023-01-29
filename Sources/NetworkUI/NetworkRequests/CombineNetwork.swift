@@ -9,7 +9,7 @@ import Foundation
 import Combine
 
 extension Network {
-    @MainActor public static func requestPublisher<T: EndPoint, Model: Codable>(endPoint: T, model: Model.Type, withLoader: Bool = true, handled: Bool = true) -> AnyPublisher<Model, Error> {
+    public static func requestPublisher<T: EndPoint, Model: Codable>(endPoint: T, model: Model.Type, withLoader: Bool = true, handled: Bool = true) -> AnyPublisher<Model, Error> {
         let request = try! requestBuilder(endPoint: endPoint)
         if withLoader {
             NetworkData.shared.isLoading = true
@@ -25,7 +25,7 @@ extension Network {
                 return error
             }.eraseToAnyPublisher()
     }
-    @MainActor private static func errorBuilderPublisher<T: EndPoint, Model: Codable>(endPoint: T, error: Error, model: Model.Type, withLoader: Bool, handled: Bool) -> Error {
+    private static func errorBuilderPublisher<T: EndPoint, Model: Codable>(endPoint: T, error: Error, model: Model.Type, withLoader: Bool, handled: Bool) -> Error {
         if handled && configurations.errorLayer.shouldDisplay(error) {
             if let networkError = error as? NetworkError {
                 NetworkData.shared.error = networkError
