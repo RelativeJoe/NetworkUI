@@ -42,6 +42,9 @@ public actor Network {
         if call.handler.withLoading {
             await NetworkData.shared.set(loading: false)
         }
+        if let map = call.map {
+            return try map(status)
+        }
         if call.errorModel != nil {
             guard let model = try? configurations.decoder.decode(Model.self, from: data.0) else {
                 let errorModel = try configurations.decoder.decode(ErrorModel.self, from: data.0)
@@ -50,17 +53,11 @@ public actor Network {
             if let validity = call.validCode, !(try validity(status)) {
                 throw NetworkError.unnaceptable(status: status)
             }
-            if let map = call.map {
-                return try map(status)
-            }
             return model
         }
         let model = try configurations.decoder.decode(Model.self, from: data.0)
         if let validity = call.validCode, !(try validity(status)) {
             throw NetworkError.unnaceptable(status: status)
-        }
-        if let map = call.map {
-            return try map(status)
         }
         return model
     }
