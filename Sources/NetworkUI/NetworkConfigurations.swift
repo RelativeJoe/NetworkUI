@@ -12,22 +12,26 @@ public protocol NetworkConfigurations {
     var timeoutInterval: TimeInterval {get}
     var baseURL: URL? {get}
     var retryCount: Int {get}
+    var cachePolicy: URLRequest.CachePolicy {get}
     var decoder: JSONDecoder {get}
     func reprocess(url: URL?) -> URL?
 }
 
 public extension NetworkConfigurations {
     var timeoutInterval: TimeInterval {
-        90
+        return 90
     }
     var baseURL: URL? {
-        nil
+        return nil
     }
     var retryCount: Int {
-        1
+        return 1
+    }
+    var cachePolicy: URLRequest.CachePolicy {
+        return .returnCacheDataElseLoad
     }
     var decoder: JSONDecoder {
-        JSONDecoder()
+        return JSONDecoder()
     }
     func reprocess(url: URL?) -> URL? {
         return url

@@ -9,7 +9,7 @@ import SwiftUI
 
 public protocol ErrorConfigurations {
     func shouldDisplay(_ error: Error) -> Bool
-    func shouldRetry(_ error: Error) -> Int?
+    func shouldRetry(_ error: Error) -> Bool
     func handle(_ error: Error)
 }
 
@@ -17,8 +17,8 @@ public extension ErrorConfigurations {
     func shouldDisplay(_ error: Error) -> Bool {
         return true
     }
-    func shouldRetry(_ error: Error) -> Int? {
-        return nil
+    func shouldRetry(_ error: Error) -> Bool {
+        return true
     }
     func handle(_ error: Error) {
     }
@@ -29,4 +29,7 @@ public struct NetworkError: Error, Identifiable, Equatable, Hashable, Codable {
     public var title: String?
     public var body: String?
     public static let cancelled = NetworkError(title: "NetworkUI Cancelled", body: "NetworkUI Cancelled")
+    public static func unnaceptable(status: ResponseStatus) -> Self {
+        NetworkError(title: "Unnaceptable Status Code", body: status.description)
+    }
 }

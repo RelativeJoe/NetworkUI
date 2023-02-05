@@ -15,6 +15,7 @@ public protocol EndPoint {
     var headers: [Header] {get}
     var retryCount: Int? {get}
     var id: CustomStringConvertible {get}
+    func reprocess(url: URL?) -> URL?
 }
 
 public extension EndPoint {
@@ -28,14 +29,12 @@ public extension EndPoint {
         return nil
     }
     var id: CustomStringConvertible {
-        return UUID().uuidString
+        return (baseURL?.absoluteString ?? "") + method.rawValue + route.components.description
     }
-}
-
-public enum RequestMethod: String {
-    case get = "GET"
-    case post = "POST"
-    case patch = "PATCH"
-    case put = "PUT"
-    case delete = "DELETE"
+    var body: JSON? {
+        return nil
+    }
+    func reprocess(url: URL?) -> URL? {
+        return url
+    }
 }

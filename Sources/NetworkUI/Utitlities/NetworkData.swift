@@ -8,6 +8,7 @@
 import SwiftUI
 
 public class NetworkData: ObservableObject {
+//MARK: - Properties
     public static let shared = NetworkData()
     internal var loadingView: (() -> AnyView)?
     internal var errorView: ((NetworkError) -> AnyView)?
@@ -21,17 +22,16 @@ public class NetworkData: ObservableObject {
             }
         }
     }
-}
-
-public extension NetworkData {
-    static func build<Body: View>(@ViewBuilder view: @escaping (NetworkError) -> Body) {
-        shared.errorView = { error in
-            AnyView(view(error))
+//MARK: - Functions
+    internal func set(loading: Bool) async {
+        await MainActor.run {
+            isLoading = loading
         }
     }
-    static func build<Body: View>(@ViewBuilder view: @escaping () -> Body) {
-        shared.loadingView = {
-            AnyView(view())
-        }
+    internal func add(_ description: String) {
+        retries[description] = (retries[description] ?? -1) + 1
+    }
+    internal func remove(_ description: String) {
+        retries.removeValue(forKey: description)
     }
 }
