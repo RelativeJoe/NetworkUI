@@ -31,24 +31,37 @@ public actor Network {
         return request
     }
 //MARK: - Result Builder
-    internal static func resultBuilder<T: EndPoint, Model: Decodable, ErrorModel: Error & Decodable>(call: NetworkCall<Model, ErrorModel, T>, request: URLRequest, data: Data) async throws -> Model {
+    internal static func resultBuilder<T: EndPoint, Model: Decodable, ErrorModel: Error & Decodable>(call: NetworkCall<Model, ErrorModel, T>, request: URLRequest, data: (Data, URLResponse)) async throws -> Model {
         print("------Begin Request------")
         print(request.cURL(pretty: true))
         print("------End Request------")
         print("------Begin Response------")
-        print(data.prettyPrinted)
+        print(data.0.prettyPrinted)
         print("------End Response------")
+        let status = ResponseStatus(statusCode: (data.1 as? HTTPURLResponse)?.statusCode ?? 0)
         if call.handler.withLoading {
             await NetworkData.shared.set(loading: false)
         }
         if call.errorModel != nil {
-            guard let model = try? configurations.decoder.decode(Model.self, from: data) else {
-                let errorModel = try configurations.decoder.decode(ErrorModel.self, from: data)
+            guard let model = try? configurations.decoder.decode(Model.self, from: data.0) else {
+                let errorModel = try configurations.decoder.decode(ErrorModel.self, from: data.0)
                 throw errorModel
+            }
+            if let validity = call.validCode, !(try validity(status)) {
+                throw NetworkError.unnaceptable(status: status)
+            }
+            if let map = call.map {
+                return try map(status)
             }
             return model
         }
-        return try configurations.decoder.decode(Model.self, from: data)
+        let model = try configurations.decoder.decode(Model.self, from: data.0)
+        if let validity = call.validCode, !(try validity(status)) {
+            throw NetworkError.unnaceptable(status: status)
+        }
+        if let map = call.map {
+            return try map(status)
+        }
+        return model
     }
-
 }

@@ -19,14 +19,7 @@ extension Network {
             guard !Task.isCancelled else {
                 throw NetworkError.cancelled
             }
-            let status = ResponseStatus(statusCode: (networkResult.1 as? HTTPURLResponse)?.statusCode ?? 0)
-            if let validity = call.validCode, !(try validity(status)) {
-                throw NetworkError.unnaceptable(status: status)
-            }
-            if let map = call.map {
-                return try map(status)
-            }
-            return try await resultBuilder(call: call, request: request, data: networkResult.0)
+            return try await resultBuilder(call: call, request: request, data: networkResult)
         }catch {
             return try await errorBuilder(call: call, error: error)
         }

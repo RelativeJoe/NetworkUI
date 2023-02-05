@@ -11,7 +11,7 @@ public struct EmptyData: Codable, Error {
 }
 
 public enum NetworkHandler {
-    case loading, error, all
+    case loading, error, all, none
     var withLoading: Bool {
         switch self {
             case .loading, .all:
