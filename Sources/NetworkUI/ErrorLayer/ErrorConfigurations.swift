@@ -24,12 +24,12 @@ public extension ErrorConfigurations {
     }
 }
 
-public protocol Errorable {
+public protocol Errorable: Identifiable, Error, Equatable, Hashable, Codable {
     var title: String? {get}
     var body: String? {get}
 }
 
-public struct NetworkError: Error, Identifiable, Equatable, Hashable, Codable, Errorable {
+public struct NetworkError: Errorable {
     public var id = UUID()
     public var title: String?
     public var body: String?

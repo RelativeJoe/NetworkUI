@@ -17,7 +17,7 @@ extension Network {
                 guard call.handler.withError, configurations.errorLayer.shouldDisplay(error) else {
                     throw error
                 }
-                if let networkError = error as? Errorable {
+                if let networkError = error as? (any Errorable) {
                     NetworkData.shared.error = networkError
                 }else {
                     NetworkData.shared.error = NetworkError(title: "Something went wrong!", body: error.localizedDescription)
