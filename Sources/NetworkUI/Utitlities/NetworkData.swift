@@ -10,11 +10,9 @@ import SwiftUI
 public class NetworkData: ObservableObject {
 //MARK: - Properties
     public static let shared = NetworkData()
-    internal var loadingView: (() -> AnyView)?
-    internal var errorView: ((NetworkError) -> AnyView)?
     internal var retries: [String: Int] = [:]
     @Published public var isLoading = false
-    @Published public var error: NetworkError? {
+    @Published public var error: Errorable? {
         didSet {
             guard error != nil else {return}
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
