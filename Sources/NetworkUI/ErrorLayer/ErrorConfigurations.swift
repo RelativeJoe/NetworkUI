@@ -39,7 +39,7 @@ public struct NetworkError: Errorable {
     public var networkError: NetworkError {
         return self
     }
-    init(title: String? = nil, body: String? = nil) {
+    public init(title: String? = nil, body: String? = nil) {
         self.title = title
         self.body = body
     }
