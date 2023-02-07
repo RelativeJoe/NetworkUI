@@ -29,14 +29,18 @@ public protocol Errorable: Identifiable, Error, Equatable, Hashable, Codable {
 }
 
 public struct NetworkError: Errorable {
-    public var networkError: NetworkError {
-        return self
-    }
     public var id = UUID()
     public var title: String?
     public var body: String?
     public static let cancelled = NetworkError(title: "NetworkUI Cancelled", body: "NetworkUI Cancelled")
     public static func unnaceptable(status: ResponseStatus) -> Self {
         NetworkError(title: "Unnaceptable Status Code", body: status.description)
+    }
+    public var networkError: NetworkError {
+        return self
+    }
+    init(title: String? = nil, body: String? = nil) {
+        self.title = title
+        self.body = body
     }
 }
