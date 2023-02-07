@@ -12,7 +12,7 @@ public class NetworkData: ObservableObject {
     public static let shared = NetworkData()
     internal var retries: [String: Int] = [:]
     @Published public var isLoading = false
-    @Published public var error: (any Errorable)? {
+    @Published public var error: NetworkError? {
         didSet {
             guard error != nil else {return}
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
