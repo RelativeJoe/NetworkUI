@@ -46,14 +46,19 @@ public actor Network {
             return try map(status)
         }
         if call.errorModel != nil {
-            guard let model = try? configurations.decoder.decode(Model.self, from: data.0) else {
+            if call.resultModel != nil {
+                guard let model = try? configurations.decoder.decode(Model.self, from: data.0) else {
+                    let errorModel = try configurations.decoder.decode(ErrorModel.self, from: data.0)
+                    throw errorModel
+                }
+                if let validity = call.validCode, !(try validity(status)) {
+                    throw NetworkError.unnaceptable(status: status)
+                }
+                return model
+            }else {
                 let errorModel = try configurations.decoder.decode(ErrorModel.self, from: data.0)
                 throw errorModel
             }
-            if let validity = call.validCode, !(try validity(status)) {
-                throw NetworkError.unnaceptable(status: status)
-            }
-            return model
         }
         let model = try configurations.decoder.decode(Model.self, from: data.0)
         if let validity = call.validCode, !(try validity(status)) {
