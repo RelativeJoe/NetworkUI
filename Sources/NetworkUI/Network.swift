@@ -46,8 +46,12 @@ public actor Network {
             return try map(status)
         }
         if call.errorModel != nil {
-            guard let model = try? configurations.decoder.decode(Model.self, from: data.0) else {
+            let model = try? configurations.decoder.decode(Model.self, from: data.0)
+            guard let model else {
                 let errorModel = try configurations.decoder.decode(ErrorModel.self, from: data.0)
+                throw errorModel
+            }
+            if model is EmptyData, let errorModel = try? configurations.decoder.decode(ErrorModel.self, from: data.0) {
                 throw errorModel
             }
             if let validity = call.validCode, !(try validity(status)) {
