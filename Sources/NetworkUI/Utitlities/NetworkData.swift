@@ -26,6 +26,11 @@ public class NetworkData: ObservableObject {
             isLoading = loading
         }
     }
+    internal func set(error: NetworkError) async {
+        await MainActor.run {
+            self.error = error
+        }
+    }
     internal func add(_ description: String) {
         retries[description] = (retries[description] ?? -1) + 1
     }

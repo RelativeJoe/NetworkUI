@@ -18,9 +18,9 @@ extension Network {
                     throw error
                 }
                 if let networkError = error as? (any Errorable) {
-                    NetworkData.shared.error = networkError.networkError
+                    NetworkData.shared.set(error: networkError.networkError)
                 }else {
-                    NetworkData.shared.error = NetworkError(title: "Something went wrong!", body: error.localizedDescription)
+                    NetworkData.shared.set(error: NetworkError(title: "Something went wrong!", body: error.localizedDescription))
                 }
                 throw error
             case .always:
