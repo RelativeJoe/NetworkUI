@@ -39,11 +39,9 @@ public extension NetworkCall {
         return NetworkCall<T, ErrorModel, Route>(handler: handler, resultModel: nil, errorModel: errorModel, endPoint: endPoint, validCode: validCode, map: transform, policy: policy)
     }
     func get() async throws -> Model {
-        return try await Network.request(call: self)
+        return try await Network.request(call: self).value
     }
     func task() async throws -> Task<Model, Error> {
-        return Task { () -> Model in
-            try await get()
-        }
+        return try await Network.request(call: self)
     }
 }
