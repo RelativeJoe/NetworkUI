@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol EndPoint {
+public protocol Route {
     var baseURL: URL? {get}
     var route: URLRoute {get}
     var method: RequestMethod {get}
@@ -18,7 +18,7 @@ public protocol EndPoint {
     func reprocess(url: URL?) -> URL?
 }
 
-public extension EndPoint {
+public extension Route {
     var baseURL: URL? {
         return nil
     }

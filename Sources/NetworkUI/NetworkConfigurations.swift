@@ -37,3 +37,11 @@ public extension NetworkConfigurations {
         return url
     }
 }
+
+internal struct DefaultConfigurations: NetworkConfigurations {
+    internal var errorLayer: ErrorConfigurations {
+        DefaultErrorConfigurations()
+    }
+    internal struct DefaultErrorConfigurations: ErrorConfigurations {
+    }
+}

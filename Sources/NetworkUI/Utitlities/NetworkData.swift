@@ -7,34 +7,25 @@
 
 import SwiftUI
 
-public class NetworkData: ObservableObject {
+internal class NetworkData {
 //MARK: - Properties
-    public static let shared = NetworkData()
+    private static let shared = NetworkData()
     internal var retries: [String: Int] = [:]
-    @Published public var isLoading = false
-    @Published public var error: NetworkError? {
-        didSet {
-            guard error != nil else {return}
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
-                self?.error = nil
-            }
-        }
+//MARK: - Initializer
+    private init() {
     }
 //MARK: - Functions
-    internal func set(loading: Bool) async {
-        await MainActor.run {
-            isLoading = loading
+    static internal func add(_ id: CustomStringConvertible) {
+        if let oldRetries = shared.retries[id.description] {
+            shared.retries[id.description] = oldRetries + 1
+        }else {
+            shared.retries[id.description] = 0
         }
     }
-    internal func set(error: NetworkError) async {
-        await MainActor.run {
-            self.error = error
-        }
+    static internal func remove(_ id: CustomStringConvertible) {
+        shared.retries.removeValue(forKey: id.description)
     }
-    internal func add(_ description: String) {
-        retries[description] = (retries[description] ?? -1) + 1
-    }
-    internal func remove(_ description: String) {
-        retries.removeValue(forKey: description)
+    static internal func value(for id: CustomStringConvertible) -> Int {
+        return shared.retries[id.description] ?? 0
     }
 }
