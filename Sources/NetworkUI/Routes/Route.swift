@@ -9,7 +9,7 @@ import Foundation
 
 public protocol Route {
     var baseURL: URL? {get}
-    var route: URLRoute {get}
+     var route: URLRoute {get}
     var method: RequestMethod {get}
     var body: JSON? {get}
     var headers: [Header] {get}
@@ -23,6 +23,9 @@ public extension Route {
         return nil
     }
     var headers: [Header] {
+        if body != nil {
+           return [Header.content(type: .applicationJson)]
+        }
         return []
     }
     var retryCount: Int? {
