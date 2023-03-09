@@ -14,6 +14,7 @@ public protocol NetworkConfigurations {
     var retryCount: Int {get}
     var cachePolicy: URLRequest.CachePolicy {get}
     var decoder: JSONDecoder {get}
+    var encoder: JSONEncoder {get}
     func reprocess(url: URL?) -> URL?
 }
 
@@ -32,6 +33,9 @@ public extension NetworkConfigurations {
     }
     var decoder: JSONDecoder {
         return JSONDecoder()
+    }
+    var encoder: JSONEncoder {
+        return JSONEncoder()
     }
     func reprocess(url: URL?) -> URL? {
         return url
