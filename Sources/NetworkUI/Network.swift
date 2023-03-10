@@ -30,23 +30,19 @@ public actor Network {
             headers.append(.content(type: .applicationJson))
         }else if !route.formData.isEmpty {
             let boundary = "Boundary-\(UUID().uuidString)"
-            var body = ""
+            var body = Data()
             route.formData.forEach { parameter in
-                body += "--\(boundary)\r\n"
-                body += "Content-Disposition:form-data; name=\"\(parameter.key)\""
-                print(parameter)
-                print(parameter.dataValue)
-                print(String(data: parameter.dataValue ?? Data(), encoding: .utf8))
+                body.append("--\(boundary)\r\n".data(using: .utf8) ?? Data())
+                body.append("Content-Disposition:form-data; name=\"\(parameter.key)\"".data(using: .utf8) ?? Data())
                 if let stringValue = parameter.stringValue {
-                    body += "\r\n\r\n\(stringValue)\r\n"
-                }else if let dataValue = parameter.dataValue, let dataContent = String(data: dataValue, encoding: .utf8) {
-                    body += "; filename=\"\(parameter.fileName ?? UUID().uuidString)\"\r\n"
-                    + "Content-Type: \"content-type header\"\r\n\r\n\(dataContent)\r\n"
+                    body.append("\r\n\r\n\(stringValue)\r\n".data(using: .utf8) ?? Data())
+                }else if let dataValue = parameter.dataValue {
+                    body.append("; filename=\"\(parameter.fileName ?? UUID().uuidString)\"\r\nContent-Type: \"content-type header\"\r\n\r\n".data(using: .utf8) ?? Data())
+                    body.append(dataValue)
                 }
             }
-            body += "--\(boundary)--\r\n";
-            let requestData = body.data(using: .utf8)
-            request.httpBody = requestData
+            body.append("\r\n--\(boundary)--\r\n".data(using: .utf8) ?? Data())
+            request.httpBody = body
             var header = Header.content(type: .multipartFormData)
             header.value += boundary
             headers.append(header)
