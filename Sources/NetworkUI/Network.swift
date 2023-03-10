@@ -37,13 +37,14 @@ public actor Network {
                 if let stringValue = parameter.stringValue {
                     body += "\r\n\r\n\(stringValue)\r\n"
                 }else if let dataValue = parameter.dataValue, let dataContent = String(data: dataValue, encoding: .utf8) {
-                    body += "; filename=\"\(parameter.fileName ?? UUID().uuidString)\"\r\nContent-Type: \"content-type header\"\r\n\r\n\(dataContent)\r\n"
+                    body += "; filename=\"\(parameter.fileName ?? UUID().uuidString)\"\r\n"
+                    + "Content-Type: \"content-type header\"\r\n\r\n\(dataContent)\r\n"
                 }
             }
             body += "--\(boundary)--\r\n";
             let requestData = body.data(using: .utf8)
             request.httpBody = requestData
-            var header = Header.content(type: .applicationJson)
+            var header = Header.content(type: .multipartFormData)
             header.value += boundary
             headers.append(header)
         }
