@@ -40,4 +40,5 @@ public enum Authorisation {
 
 public enum ContentType: String {
     case applicationJson = "application/json"
+    case multipartFormData = "multipart/form-data; boundary="
 }

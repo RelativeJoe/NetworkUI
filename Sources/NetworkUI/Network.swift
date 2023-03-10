@@ -7,13 +7,13 @@ public actor Network {
         Network.configurations = configurations
     }
 //MARK: - Request Builder
-    internal static func requestBuilder<T: Route>(endPoint: T) throws -> URLRequest {
+    internal static func requestBuilder(route: Route) throws -> URLRequest {
         var requestURL: URL?
-        if let baseURL = endPoint.baseURL {
-            let reproccessed = endPoint.route.reproccessed(with: endPoint.reprocess(url: endPoint.route.applied(to: baseURL)))
+        if let baseURL = route.baseURL {
+            let reproccessed = route.route.reproccessed(with: route.reprocess(url: route.route.applied(to: baseURL)))
             requestURL = reproccessed
         }else if let baseURL = configurations.baseURL {
-            let reproccessed = endPoint.route.reproccessed(with: configurations.reprocess(url: endPoint.route.applied(to: baseURL)))
+            let reproccessed = route.route.reproccessed(with: configurations.reprocess(url: route.route.applied(to: baseURL)))
             requestURL = reproccessed
         }else {
             throw NetworkError(title: "Error", body: "No Base URL found!")
@@ -22,12 +22,31 @@ public actor Network {
             throw NetworkError(title: "Error", body: "The constructed URL is invalid!")
         }
         var request = URLRequest(url: requestURL, timeoutInterval:  configurations.timeoutInterval)
-        request.httpMethod = endPoint.method.rawValue
+        request.httpMethod = route.method.rawValue
         request.cachePolicy = configurations.cachePolicy
-        request.configure(headers: endPoint.headers)
-        if let data = endPoint.body?.data {
+        var headers = route.headers
+        if let data = route.body?.data {
             request.httpBody = data
+        }else if !route.formData.isEmpty {
+            let boundary = "Boundary-\(UUID().uuidString)"
+            var body = ""
+            route.formData.forEach { parameter in
+                body += "--\(boundary)\r\n"
+                body += "Content-Disposition:form-data; name=\"\(parameter.key)\""
+                if let stringValue = parameter.stringValue {
+                    body += "\r\n\r\n\(stringValue)\r\n"
+                }else if let dataValue = parameter.dataValue, let dataContent = String(data: dataValue, encoding: .utf8) {
+                    body += "; filename=\"\(parameter.fileName ?? UUID().uuidString)\"\r\nContent-Type: \"content-type header\"\r\n\r\n\(dataContent)\r\n"
+                }
+            }
+            body += "--\(boundary)--\r\n";
+            let requestData = body.data(using: .utf8)
+            request.httpBody = requestData
+            if let index = headers.firstIndex(where: {$0.value == ContentType.multipartFormData.rawValue}) {
+                headers[index].value += boundary
+            }
         }
+        request.configure(headers: headers)
         return request
     }
 //MARK: - Result Builder

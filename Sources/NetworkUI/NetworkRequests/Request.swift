@@ -12,7 +12,7 @@ extension Network {
         Task.detached { () -> Model in
             do {
                 NetworkData.add(call.route.id)
-                let request = try requestBuilder(endPoint: call.route)
+                let request = try requestBuilder(route: call.route)
                 let networkResult = try await URLSession.shared.data(for: request)
                 guard !Task.isCancelled else {
                     throw NetworkError.cancelled
