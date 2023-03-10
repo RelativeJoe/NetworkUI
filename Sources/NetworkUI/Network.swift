@@ -34,6 +34,9 @@ public actor Network {
             route.formData.forEach { parameter in
                 body += "--\(boundary)\r\n"
                 body += "Content-Disposition:form-data; name=\"\(parameter.key)\""
+                print(parameter)
+                print(parameter.dataValue)
+                print(String(data: parameter.dataValue ?? Data(), encoding: .utf8))
                 if let stringValue = parameter.stringValue {
                     body += "\r\n\r\n\(stringValue)\r\n"
                 }else if let dataValue = parameter.dataValue, let dataContent = String(data: dataValue, encoding: .utf8) {
