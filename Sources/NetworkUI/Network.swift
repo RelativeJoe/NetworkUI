@@ -27,6 +27,7 @@ public actor Network {
         var headers = route.headers
         if let data = route.body?.data {
             request.httpBody = data
+            headers.append(.content(type: .applicationJson))
         }else if !route.formData.isEmpty {
             let boundary = "Boundary-\(UUID().uuidString)"
             var body = ""
@@ -42,9 +43,9 @@ public actor Network {
             body += "--\(boundary)--\r\n";
             let requestData = body.data(using: .utf8)
             request.httpBody = requestData
-            if let index = headers.firstIndex(where: {$0.value == ContentType.multipartFormData.rawValue}) {
-                headers[index].value += boundary
-            }
+            var header = Header.content(type: .applicationJson)
+            header.value += boundary
+            headers.append(header)
         }
         request.configure(headers: headers)
         return request
