@@ -16,16 +16,16 @@ internal class NetworkData {
     }
 //MARK: - Functions
     static internal func add(_ id: CustomStringConvertible) {
-        if let oldRetries = shared.retries[id.description] {
-            shared.retries[id.description] = oldRetries + 1
-        }else {
-            shared.retries[id.description] = 0
-        }
+//        if let oldRetries = shared.retries[id.description] {
+//            shared.retries[id.description] = oldRetries + 1
+//        }else {
+//            shared.retries[id.description] = 0
+//        }
     }
     static internal func remove(_ id: CustomStringConvertible) {
-        shared.retries.removeValue(forKey: id.description)
+//        shared.retries.removeValue(forKey: id.description)
     }
     static internal func value(for id: CustomStringConvertible) -> Int {
-        return shared.retries[id.description] ?? 0
+        return 0
     }
 }
