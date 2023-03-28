@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol NetworkConfigurations {
-    var errorLayer: ErrorConfigurations {get}
+    var interceptor: Interceptor {get}
     var timeoutInterval: TimeInterval {get}
     var baseURL: URL? {get}
     var retryCount: Int {get}
@@ -40,12 +40,10 @@ public extension NetworkConfigurations {
     func reprocess(url: URL?) -> URL? {
         return url
     }
+    var interceptor: Interceptor {
+        return DefaultInterceptor()
+    }
 }
 
-internal struct DefaultConfigurations: NetworkConfigurations {
-    internal var errorLayer: ErrorConfigurations {
-        DefaultErrorConfigurations()
-    }
-    internal struct DefaultErrorConfigurations: ErrorConfigurations {
-    }
+public struct DefaultConfigurations: NetworkConfigurations {
 }

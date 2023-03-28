@@ -12,13 +12,16 @@ extension Network {
         Task.detached { () -> Model in
             do {
                 NetworkData.add(call.route.id)
+                await configurations.interceptor.callDidStart(call)
                 let request = try requestBuilder(route: call.route)
                 let networkResult = try await URLSession.shared.data(for: request)
+                await configurations.interceptor.responseDownloaded(networkResult, for: call)
                 guard !Task.isCancelled else {
                     throw NetworkError.cancelled
                 }
                 return try await resultBuilder(call: call, request: request, data: networkResult)
             }catch {
+                await configurations.interceptor.callDidEnd(call)
                 return try await errorBuilder(call: call, error: error)
             }
         }

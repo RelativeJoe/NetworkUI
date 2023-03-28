@@ -64,6 +64,7 @@ public actor Network {
         print("---------------------------End Response---------------------------------")
         print("")
         if let map = call.map {
+            await configurations.interceptor.callDidEnd(call)
             NetworkData.remove(call.route.id)
             return try map(status)
         }
@@ -76,6 +77,7 @@ public actor Network {
             if let validity = call.validCode, !(try validity(status)) {
                 throw NetworkError.unnaceptable(status: status)
             }
+            await configurations.interceptor.callDidEnd(call)
             NetworkData.remove(call.route.id)
             return model
         }catch let modelError {

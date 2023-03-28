@@ -16,13 +16,13 @@ extension Network {
             case .always:
                 let retryCount = call.route.retryCount ?? configurations.retryCount
                 let currentCount = NetworkData.value(for: call.route.id)
-                guard retryCount > currentCount, configurations.errorLayer.shouldRetry(error) else {
+                guard retryCount > currentCount, configurations.interceptor.shouldRetry(error) else {
                     throw error
                 }
                 return try await call.get()
             case .custom(let number):
                 let currentCount = NetworkData.value(for: call.route.id)
-                guard number > currentCount, configurations.errorLayer.shouldRetry(error) else {
+                guard number > currentCount, configurations.interceptor.shouldRetry(error) else {
                     throw error
                 }
                 return try await call.get()
