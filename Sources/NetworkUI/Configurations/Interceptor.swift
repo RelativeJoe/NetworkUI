@@ -16,7 +16,7 @@ public protocol Interceptor {
     func callDidEnd<Model: Decodable, ErrorModel: Decodable>(_ call: NetworkCall<Model, ErrorModel>) async
 }
 
-extension Interceptor {
+public struct DefaultInterceptor: Interceptor {
     public func shouldRetry(_ error: Error) -> Bool {
         return true
     }
@@ -28,7 +28,4 @@ extension Interceptor {
     }
     public func callDidEnd<Model: Decodable, ErrorModel: Decodable>(_ call: NetworkCall<Model, ErrorModel>) async {
     }
-}
-
-public struct DefaultInterceptor: Interceptor {
 }
