@@ -15,7 +15,7 @@ public struct JSON {
 //MARK: - Modifiers
 public extension JSON {
     static func codable<T: Codable>(object: T, encoder: JSONEncoder? = nil) -> JSON {
-        let encoder = encoder ?? Network.configurations.encoder
+        let encoder = encoder ?? JSONEncoder()
         let data = try? encoder.encode(object)
         return JSON(data: data)
     }

@@ -8,12 +8,15 @@
 import Foundation
 
 extension Network {
-    nonisolated internal static func request<Model: Decodable, ErrorModel: Error & Decodable>(call: NetworkCall<Model, ErrorModel>) async throws -> Task<Model, Error> {
-        Task.detached { () -> Model in
+    nonisolated internal func request<Model: Decodable, ErrorModel: Error & Decodable>(call: NetworkCall<Model, ErrorModel>) async throws -> Task<Model, Error> {
+        Task.detached { [weak self] () -> Model in
+            guard let self else {
+                throw NetworkError.cancelled
+            }
             do {
                 NetworkData.add(call.route.id)
                 await configurations.interceptor.callDidStart(call)
-                let request = try requestBuilder(route: call.route)
+                let request = try await requestBuilder(route: call.route)
                 let networkResult = try await URLSession.shared.data(for: request)
                 await configurations.interceptor.responseDownloaded(networkResult, for: call)
                 guard !Task.isCancelled else {
@@ -26,7 +29,7 @@ extension Network {
             }
         }
     }
-    nonisolated public static func request<T: Route>(for route: T) async throws -> NetworkCall<EmptyData, EmptyData> {
-        return NetworkCall(route: route)
+    nonisolated public func request<T: Route>(for route: T) -> NetworkCall<EmptyData, EmptyData> {
+        return NetworkCall(route: route, interface: self)
     }
 }

@@ -8,7 +8,7 @@
 import Foundation
 
 extension Network {
-    internal static func errorBuilder<Model: Decodable, ErrorModel: Error & Decodable>(call: NetworkCall<Model, ErrorModel>, error: Error) async throws -> Model {
+    internal func errorBuilder<Model: Decodable, ErrorModel: Error & Decodable>(call: NetworkCall<Model, ErrorModel>, error: Error) async throws -> Model {
         await configurations.interceptor.handle(error)
         switch call.policy {
             case .never:

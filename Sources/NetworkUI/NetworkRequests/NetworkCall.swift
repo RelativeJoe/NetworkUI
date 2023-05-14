@@ -16,32 +16,33 @@ public struct NetworkCall<Model: Decodable, ErrorModel: Error & Decodable> {
     internal var map: ((ResponseStatus) throws -> Model)?
     internal var policy = NetworkRetries.always
     internal var decoder: JSONDecoder?
+    internal var interface: Network
 }
 
 //MARK: - Modifiers
 public extension NetworkCall {
     func tryDecode<T: Decodable>(using type: T.Type) -> NetworkCall<T, ErrorModel> {
-        return NetworkCall<T, ErrorModel>(resultModel: type, errorModel: errorModel, route: route, validCode: validCode, map: nil, policy: policy, decoder: decoder)
+        return NetworkCall<T, ErrorModel>(resultModel: type, errorModel: errorModel, route: route, validCode: validCode, map: nil, policy: policy, decoder: decoder, interface: interface)
     }
     func tryCatch<T: Error & Decodable>(using type: T.Type) -> NetworkCall<Model, T> {
-        return NetworkCall<Model, T>(resultModel: resultModel, errorModel: type, route: route, validCode: validCode, map: map, policy: policy, decoder: decoder)
+        return NetworkCall<Model, T>(resultModel: resultModel, errorModel: type, route: route, validCode: validCode, map: map, policy: policy, decoder: decoder, interface: interface)
     }
     func validate(_ transform: @escaping (ResponseStatus) throws -> Bool) rethrows -> Self {
-        return NetworkCall(resultModel: resultModel, errorModel: errorModel, route: route, validCode: transform, map: map, policy: policy, decoder: decoder)
+        return NetworkCall(resultModel: resultModel, errorModel: errorModel, route: route, validCode: transform, map: map, policy: policy, decoder: decoder, interface: interface)
     }
     func retryPolicy(_ policy: NetworkRetries) -> Self {
-        return NetworkCall(resultModel: resultModel, errorModel: errorModel, route: route, validCode: validCode, map: map, policy: policy, decoder: decoder)
+        return NetworkCall(resultModel: resultModel, errorModel: errorModel, route: route, validCode: validCode, map: map, policy: policy, decoder: decoder, interface: interface)
     }
     func map<T: Decodable>(_ transform: @escaping (ResponseStatus) throws -> T) rethrows -> NetworkCall<T, ErrorModel> {
-        return NetworkCall<T, ErrorModel>(resultModel: nil, errorModel: errorModel, route: route, validCode: validCode, map: transform, policy: policy, decoder: decoder)
+        return NetworkCall<T, ErrorModel>(resultModel: nil, errorModel: errorModel, route: route, validCode: validCode, map: transform, policy: policy, decoder: decoder, interface: interface)
     }
     func with<T: JSONDecoder>(decoder: T) -> Self {
-        return NetworkCall(resultModel: resultModel, errorModel: errorModel, route: route, validCode: validCode, map: map, policy: policy, decoder: decoder)
+        return NetworkCall(resultModel: resultModel, errorModel: errorModel, route: route, validCode: validCode, map: map, policy: policy, decoder: decoder, interface: interface)
     }
     func get() async throws -> Model {
-        return try await Network.request(call: self).value
+        return try await interface.request(call: self).value
     }
     func task() async throws -> Task<Model, Error> {
-        return try await Network.request(call: self)
+        return try await interface.request(call: self)
     }
 }

@@ -78,9 +78,20 @@ public extension URLRoute {
         var newURL = url
         components.forEach { item in
             if let string = item as? String {
-                newURL?.append(path: string)
+                if #available(macOS 13.0, iOS 16.0, *) {
+                    newURL?.append(path: string)
+                }else {
+                    newURL = newURL?.appendingPathComponent(string)
+                }
             }else if let parameter = item as? URLQueryItem {
-                newURL?.append(queryItems: [parameter])
+                if #available(macOS 13.0, iOS 16.0, *) {
+                    newURL?.append(queryItems: [parameter])
+                }else {
+                    guard let urlString = newURL?.absoluteString else {return}
+                    var components = URLComponents(string: urlString)
+                    components?.queryItems?.append(parameter)
+                    newURL = components?.url
+                }
             }else if let route = item as? URLRoute {
                 newURL = route.applied(to: url)
             }
@@ -91,9 +102,20 @@ public extension URLRoute {
         var newURL = url
         postComponents.forEach { item in
             if let string = item as? String {
-                newURL?.append(path: string)
+                if #available(macOS 13.0, iOS 16.0, *) {
+                    newURL?.append(path: string)
+                }else {
+                    newURL = newURL?.appendingPathComponent(string)
+                }
             }else if let parameter = item as? URLQueryItem {
-                newURL?.append(queryItems: [parameter])
+                if #available(macOS 13.0, iOS 16.0, *) {
+                    newURL?.append(queryItems: [parameter])
+                }else {
+                    guard let urlString = newURL?.absoluteString else {return}
+                    var components = URLComponents(string: urlString)
+                    components?.queryItems?.append(parameter)
+                    newURL = components?.url
+                }
             }else if let route = item as? URLRoute {
                 newURL = route.applied(to: url)
             }

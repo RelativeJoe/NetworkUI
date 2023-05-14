@@ -2,12 +2,14 @@ import Foundation
 import Combine
 
 public actor Network {
-    internal static var configurations: NetworkConfigurations = DefaultConfigurations()
-    public static func set(configurations: NetworkConfigurations) {
-        Network.configurations = configurations
+//MARK: - Properties
+    internal var configurations: NetworkConfigurations = DefaultConfigurations()
+//MARK: - Initializer
+    public init(configurations: NetworkConfigurations) {
+        self.configurations = configurations
     }
 //MARK: - Request Builder
-    internal static func requestBuilder(route: Route) throws -> URLRequest {
+    internal func requestBuilder(route: Route) throws -> URLRequest {
         var requestURL: URL?
         if let baseURL = route.baseURL {
             let reproccessed = route.route.reproccessed(with: route.reprocess(url: route.route.applied(to: baseURL)))
@@ -51,7 +53,7 @@ public actor Network {
         return request
     }
 //MARK: - Result Builder
-    internal static func resultBuilder<Model: Decodable, ErrorModel: Error & Decodable>(call: NetworkCall<Model, ErrorModel>, request: URLRequest, data: (Data, URLResponse)) async throws -> Model {
+    internal func resultBuilder<Model: Decodable, ErrorModel: Error & Decodable>(call: NetworkCall<Model, ErrorModel>, request: URLRequest, data: (Data, URLResponse)) async throws -> Model {
         print("")
         let status = ResponseStatus(statusCode: (data.1 as? HTTPURLResponse)?.statusCode ?? 0)
         print("Status \(status.description)")
