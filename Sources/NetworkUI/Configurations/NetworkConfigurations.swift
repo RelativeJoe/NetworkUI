@@ -46,4 +46,6 @@ public extension NetworkConfigurations {
 }
 
 public struct DefaultConfigurations: NetworkConfigurations {
+    public init() {
+    }
 }

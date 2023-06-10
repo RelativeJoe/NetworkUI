@@ -3,9 +3,9 @@ import Combine
 
 public actor Network {
 //MARK: - Properties
-    internal var configurations: NetworkConfigurations = DefaultConfigurations()
+    internal var configurations: NetworkConfigurations
 //MARK: - Initializer
-    public init(configurations: NetworkConfigurations) {
+    public init(configurations: NetworkConfigurations = DefaultConfigurations()) {
         self.configurations = configurations
     }
 //MARK: - Request Builder

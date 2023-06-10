@@ -8,14 +8,14 @@
 import Foundation
 
 public struct JSON {
-//MARK: - Propertirs
+//MARK: - Properties
     internal var data: Data?
 }
 
 //MARK: - Modifiers
 public extension JSON {
-    static func codable<T: Codable>(object: T, encoder: JSONEncoder? = nil) -> JSON {
-        let encoder = encoder ?? JSONEncoder()
+    static func codable<T: Codable>(object: T, encoder: JSONEncoder = JSONEncoder()) -> JSON {
+        let encoder = encoder
         let data = try? encoder.encode(object)
         return JSON(data: data)
     }

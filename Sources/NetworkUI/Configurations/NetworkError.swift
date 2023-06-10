@@ -12,16 +12,16 @@ public protocol Errorable: Identifiable, Error, Equatable, Hashable, Codable {
 }
 
 public struct NetworkError: Errorable {
-    //MARK: - Properties
+//MARK: - Properties
     public var id = UUID()
     public var title: String?
     public var body: String?
-    //MARK: - Initializer
+//MARK: - Initializer
     public init(title: String? = nil, body: String? = nil) {
         self.title = title
         self.body = body
     }
-    //MARK: - Mappings
+//MARK: - Mappings
     public static let cancelled = NetworkError(title: "NetworkUI Cancelled", body: "NetworkUI Cancelled")
     public static func unnaceptable(status: ResponseStatus) -> Self {
         NetworkError(title: "Unnaceptable Status Code", body: status.description)
