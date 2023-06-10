@@ -13,7 +13,7 @@ public protocol Route {
     var method: RequestMethod {get}
     var body: JSON? {get}
     var formData: [FormData] {get}
-    var contentType: ContentType? {get}
+//    var contentType: ContentType? {get}
     var headers: [Header] {get}
     var retryCount: Int? {get}
     var id: CustomStringConvertible {get}
@@ -38,14 +38,6 @@ public extension Route {
     }
     func reprocess(url: URL?) -> URL? {
         return url
-    }
-    var contentType: ContentType? {
-        if body != nil {
-            return .applicationJson
-        }else if !formData.isEmpty {
-            return .multipartFormData
-        }
-        return nil
     }
     var formData: [FormData] {
         return []

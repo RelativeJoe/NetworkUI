@@ -7,7 +7,10 @@ let package = Package(
     platforms: [
         .iOS(.v13),
         .macOS(.v10_15),
-        .watchOS(.v6)
+        .watchOS(.v6),
+        .tvOS(.v13),
+        .macCatalyst(.v13),
+        .driverKit(.v19)
     ],
     products: [
         .library(name: "NetworkUI", targets: ["NetworkUI"]),
