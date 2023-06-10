@@ -74,9 +74,8 @@ public extension URLRoute {
 
 //MARK: - Public Functions
 public extension URLRoute {
-    func applied(to url: URL?) -> URL? {
-        var newURL = url
-        components.forEach { item in
+    static func proccess(_ url: URL?, components: [URLable]) -> URL? {
+        return components.reduce(into: url) { newURL, item in
             if let string = item as? String {
                 if #available(macOS 13.0, iOS 16.0, *) {
                     newURL?.append(path: string)
@@ -94,32 +93,15 @@ public extension URLRoute {
                 }
             }else if let route = item as? URLRoute {
                 newURL = route.applied(to: url)
+            }else if let iterable = item as? Iterable {
+                newURL = Self.proccess(newURL, components: iterable.parameters)
             }
         }
-        return newURL
+    }
+    func applied(to url: URL?) -> URL? {
+        return Self.proccess(url, components: components)
     }
     func reproccessed(with url: URL?) -> URL? {
-        var newURL = url
-        postComponents.forEach { item in
-            if let string = item as? String {
-                if #available(macOS 13.0, iOS 16.0, *) {
-                    newURL?.append(path: string)
-                }else {
-                    newURL = newURL?.appendingPathComponent(string)
-                }
-            }else if let parameter = item as? URLQueryItem {
-                if #available(macOS 13.0, iOS 16.0, *) {
-                    newURL?.append(queryItems: [parameter])
-                }else {
-                    guard let urlString = newURL?.absoluteString else {return}
-                    var components = URLComponents(string: urlString)
-                    components?.queryItems?.append(parameter)
-                    newURL = components?.url
-                }
-            }else if let route = item as? URLRoute {
-                newURL = route.applied(to: url)
-            }
-        }
-        return newURL
+        return Self.proccess(url, components: postComponents)
     }
 }
