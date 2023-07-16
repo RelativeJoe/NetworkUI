@@ -17,6 +17,18 @@ public struct NetworkCall<Model: Decodable, ErrorModel: Error & Decodable> {
     internal var policy = NetworkRetries.always
     internal var decoder: JSONDecoder?
     internal var interface: Network
+//MARK: - Functions
+    internal func maxRetryCount() async -> Int {
+        switch policy {
+            case .never:
+                return 0
+            case .always:
+                let configurationCount = await interface.configurations.retryCount
+                return route.retryCount ?? configurationCount
+            case .custom(let count):
+                return count
+        }
+    }
 }
 
 //MARK: - Modifiers
@@ -40,9 +52,9 @@ public extension NetworkCall {
         return NetworkCall(resultModel: resultModel, errorModel: errorModel, route: route, validCode: validCode, map: map, policy: policy, decoder: decoder, interface: interface)
     }
     func get() async throws -> Model {
-        return try await interface.request(call: self).value
+        return try await interface.retryingRequest(call: self).value
     }
     func task() async throws -> Task<Model, Error> {
-        return try await interface.request(call: self)
+        return try await interface.retryingRequest(call: self)
     }
 }

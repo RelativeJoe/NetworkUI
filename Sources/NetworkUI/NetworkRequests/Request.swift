@@ -8,28 +8,39 @@
 import Foundation
 
 extension Network {
-    nonisolated internal func request<Model: Decodable, ErrorModel: Error & Decodable>(call: NetworkCall<Model, ErrorModel>) async throws -> Task<Model, Error> {
-        Task.detached { [weak self] () -> Model in
-            guard let self else {
-                throw NetworkError.cancelled
+    internal func request<Model: Decodable, ErrorModel: Error & Decodable>(call: NetworkCall<Model, ErrorModel>) async throws -> Model {
+        try Task.checkCancellation()
+        await configurations.interceptor.callDidStart(call)
+        let request = try requestBuilder(route: call.route)
+        let networkResult = try await URLSession.shared.data(for: request)
+        await configurations.interceptor.responseDownloaded(networkResult, for: call)
+        try Task.checkCancellation()
+        return try await resultBuilder(call: call, request: request, data: networkResult)
+    }
+    internal func retryingRequest<Model: Decodable, ErrorModel: Error & Decodable>(call: NetworkCall<Model, ErrorModel>) async throws -> Task<Model, Error> {
+        Task(priority: .background) {
+            let maxRetryCount = await call.maxRetryCount()
+            if maxRetryCount > 0 {
+                for _ in 0..<maxRetryCount {
+                    do {
+                        return try await request(call: call)
+                    }catch {
+                        print(error)
+                        continue
+                    }
+                }
             }
             do {
-                NetworkData.add(call.route.id)
-                await configurations.interceptor.callDidStart(call)
-                let request = try await requestBuilder(route: call.route)
-                let networkResult = try await URLSession.shared.data(for: request)
-                await configurations.interceptor.responseDownloaded(networkResult, for: call)
-                guard !Task.isCancelled else {
-                    throw NetworkError.cancelled
-                }
-                return try await resultBuilder(call: call, request: request, data: networkResult)
+                return try await request(call: call)
             }catch {
+                print(error)
                 await configurations.interceptor.callDidEnd(call)
-                return try await errorBuilder(call: call, error: error)
+                await configurations.interceptor.handle(error)
+                throw error
             }
         }
     }
-    nonisolated public func request<T: Route>(for route: T) -> NetworkCall<EmptyData, EmptyData> {
+    public func request<T: Route>(for route: T) -> NetworkCall<EmptyData, EmptyData> {
         return NetworkCall(route: route, interface: self)
     }
 }

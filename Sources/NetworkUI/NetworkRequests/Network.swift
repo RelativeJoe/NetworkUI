@@ -67,7 +67,6 @@ public actor Network {
         print("")
         if let map = call.map {
             await configurations.interceptor.callDidEnd(call)
-            NetworkData.remove(call.route.id)
             return try map(status)
         }
         let decoder = call.decoder ?? configurations.decoder
@@ -80,7 +79,6 @@ public actor Network {
                 throw NetworkError.unnaceptable(status: status)
             }
             await configurations.interceptor.callDidEnd(call)
-            NetworkData.remove(call.route.id)
             return model
         }catch let modelError {
             if call.errorModel != nil {

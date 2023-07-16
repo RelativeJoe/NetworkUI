@@ -12,9 +12,8 @@ public protocol Route {
     var route: URLRoute {get}
     var method: RequestMethod {get}
     var body: JSON? {get}
-    var formData: [FormData] {get}
-//    var contentType: ContentType? {get}
-    var headers: [Header] {get}
+    @FormDataResultBuilder var formData: [FormData] {get}
+    @HeaderResultBuilder var headers: [Header] {get}
     var retryCount: Int? {get}
     var id: CustomStringConvertible {get}
     func reprocess(url: URL?) -> URL?
