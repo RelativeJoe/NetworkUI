@@ -1,10 +1,12 @@
 import Foundation
 import Combine
 
+///NetworkUI: The Network actor that handles requests
 public actor Network {
 //MARK: - Properties
     internal var configurations: NetworkConfigurations
 //MARK: - Initializer
+///NetworkUI: Initializer a `Network` instance using `NetworkConfigurations`
     public init(configurations: NetworkConfigurations = DefaultConfigurations()) {
         self.configurations = configurations
     }

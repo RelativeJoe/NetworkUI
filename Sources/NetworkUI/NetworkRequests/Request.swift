@@ -40,6 +40,7 @@ extension Network {
             }
         }
     }
+///NetworkUI: Build a request using a `Route`
     public func request<T: Route>(for route: T) -> NetworkCall<EmptyData, EmptyData> {
         return NetworkCall(route: route, interface: self)
     }
