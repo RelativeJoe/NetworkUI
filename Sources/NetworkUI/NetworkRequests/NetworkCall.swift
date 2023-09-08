@@ -17,14 +17,13 @@ public struct NetworkCall<Model: Decodable, ErrorModel: Error & Decodable> {
     internal var map: ((ResponseStatus) throws -> Model)?
     internal var policy = NetworkRetries.always
     internal var decoder: JSONDecoder?
-    internal var interface: Network
+    internal var interface: NetworkRequestable
 //MARK: - Functions
-    internal func maxRetryCount() async -> Int {
+    internal func maxRetryCount(configurationCount: Int) async -> Int {
         switch policy {
             case .never:
                 return 0
             case .always:
-                let configurationCount = await interface.configurations.retryCount
                 return route.retryCount ?? configurationCount
             case .custom(let count):
                 return count

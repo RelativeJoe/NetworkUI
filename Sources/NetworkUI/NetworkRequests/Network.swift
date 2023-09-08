@@ -2,13 +2,15 @@ import Foundation
 import Combine
 
 ///NetworkUI: The Network actor that handles requests
-public actor Network {
+public actor Network: NetworkRequestable {
 //MARK: - Properties
-    internal var configurations: NetworkConfigurations
+    public var configurations: NetworkConfigurations
+    public var session: URLSession
 //MARK: - Initializer
 ///NetworkUI: Initializer a `Network` instance using `NetworkConfigurations`
-    public init(configurations: NetworkConfigurations = DefaultConfigurations()) {
+    public init(configurations: NetworkConfigurations = DefaultConfigurations(), session: URLSession = .shared) {
         self.configurations = configurations
+        self.session = session
     }
 //MARK: - Request Builder
     internal func requestBuilder(route: Route) throws -> URLRequest {
@@ -56,17 +58,8 @@ public actor Network {
     }
 //MARK: - Result Builder
     internal func resultBuilder<Model: Decodable, ErrorModel: Error & Decodable>(call: NetworkCall<Model, ErrorModel>, request: URLRequest, data: (Data, URLResponse)) async throws -> Model {
-        print("")
         let status = ResponseStatus(statusCode: (data.1 as? HTTPURLResponse)?.statusCode ?? 0)
-        print("Status \(status.description)")
-        print("---------------------------Request Begin---------------------------------")
-        print(request.cURL(pretty: true))
-        print("---------------------------End Request---------------------------------")
-        print("")
-        print("---------------------------Begin Response---------------------------------")
-        print(data.0.prettyPrinted)
-        print("---------------------------End Response---------------------------------")
-        print("")
+        RequestLogger.end(request: request, with: (data.0, status))
         if let map = call.map {
             await configurations.interceptor.callDidEnd(call)
             return try map(status)

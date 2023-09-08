@@ -7,33 +7,32 @@
 
 import Foundation
 
-extension Network {
-    internal func request<Model: Decodable, ErrorModel: Error & Decodable>(call: NetworkCall<Model, ErrorModel>) async throws -> Model {
+public extension Network {
+    func request<Model: Decodable, ErrorModel: Error & Decodable>(call: NetworkCall<Model, ErrorModel>, requestCount: Int) async throws -> Model {
         try Task.checkCancellation()
         await configurations.interceptor.callDidStart(call)
         let request = try requestBuilder(route: call.route)
-        let networkResult = try await URLSession.shared.data(for: request)
+        RequestLogger.start(request: request, count: requestCount)
+        let networkResult = try await session.data(for: request)
         await configurations.interceptor.responseDownloaded(networkResult, for: call)
         try Task.checkCancellation()
         return try await resultBuilder(call: call, request: request, data: networkResult)
     }
-    internal func retryingRequest<Model: Decodable, ErrorModel: Error & Decodable>(call: NetworkCall<Model, ErrorModel>) async throws -> Task<Model, Error> {
-        Task(priority: .background) {
-            let maxRetryCount = await call.maxRetryCount()
+    func retryingRequest<Model: Decodable, ErrorModel: Error & Decodable>(call: NetworkCall<Model, ErrorModel>) async throws -> Task<Model, Error> {
+        Task {
+            let maxRetryCount = await call.maxRetryCount(configurationCount: configurations.retryCount)
             if maxRetryCount > 0 {
-                for _ in 0..<maxRetryCount {
+                for count in 0..<(maxRetryCount - 1) {
                     do {
-                        return try await request(call: call)
+                        return try await request(call: call, requestCount: count)
                     }catch {
-                        print(error)
                         continue
                     }
                 }
             }
             do {
-                return try await request(call: call)
+                return try await request(call: call, requestCount: maxRetryCount)
             }catch {
-                print(error)
                 await configurations.interceptor.callDidEnd(call)
                 await configurations.interceptor.handle(error)
                 throw error
@@ -41,7 +40,7 @@ extension Network {
         }
     }
 ///NetworkUI: Build a request using a `Route`
-    public func request<T: Route>(for route: T) -> NetworkCall<EmptyData, EmptyData> {
+    func request<T: Route>(for route: T) -> NetworkCall<EmptyData, EmptyData> {
         return NetworkCall(route: route, interface: self)
     }
 }
