@@ -22,7 +22,7 @@ public extension Network {
         Task {
             let maxRetryCount = await call.maxRetryCount(configurationCount: configurations.retryCount)
             if maxRetryCount > 0 {
-                for count in 0..<(maxRetryCount - 1) {
+                for count in 0..<maxRetryCount {
                     do {
                         return try await request(call: call, requestCount: count)
                     }catch {
