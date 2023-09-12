@@ -16,7 +16,7 @@ public extension Network {
         let networkResult = try await session.data(for: request)
         await configurations.interceptor.responseDownloaded(networkResult, for: call)
         try Task.checkCancellation()
-        return try await resultBuilder(call: call, request: request, data: networkResult)
+        return try await resultBuilder(call: call, request: request, response: networkResult)
     }
     func retryingRequest<Model: Decodable, ErrorModel: Error & Decodable>(call: NetworkCall<Model, ErrorModel>) async throws -> Task<Model, Error> {
         Task {

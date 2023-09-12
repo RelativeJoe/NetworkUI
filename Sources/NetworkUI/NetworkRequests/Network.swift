@@ -57,17 +57,17 @@ public actor Network: NetworkRequestable {
         return request
     }
 //MARK: - Result Builder
-    internal func resultBuilder<Model: Decodable, ErrorModel: Error & Decodable>(call: NetworkCall<Model, ErrorModel>, request: URLRequest, data: (Data, URLResponse)) async throws -> Model {
-        let status = ResponseStatus(statusCode: (data.1 as? HTTPURLResponse)?.statusCode ?? 0)
-        RequestLogger.end(request: request, with: (data.0, status))
+    internal func resultBuilder<Model: Decodable, ErrorModel: Error & Decodable>(call: NetworkCall<Model, ErrorModel>, request: URLRequest, response: (data: Data, status: URLResponse)) async throws -> Model {
+        let status = ResponseStatus(statusCode: (response.status as? HTTPURLResponse)?.statusCode ?? 0)
+        RequestLogger.end(request: request, with: (response.data, status))
         if let map = call.map {
             await configurations.interceptor.callDidEnd(call)
             return try map(status)
         }
         let decoder = call.decoder ?? configurations.decoder
         do {
-            let model = try decoder.decode(Model.self, from: data.0)
-            if model is EmptyData && call.errorModel != nil, let errorModel = try? decoder.decode(ErrorModel.self, from: data.0) {
+            let model = try decoder.decode(Model.self, from: response.data)
+            if model is EmptyData && call.errorModel != nil, let errorModel = try? decoder.decode(ErrorModel.self, from: response.data) {
                 throw errorModel
             }
             if let validity = call.validCode, !(try validity(status)) {
@@ -78,7 +78,7 @@ public actor Network: NetworkRequestable {
         }catch let modelError {
             if call.errorModel != nil {
                 do {
-                    let errorModel = try decoder.decode(ErrorModel.self, from: data.0)
+                    let errorModel = try decoder.decode(ErrorModel.self, from: response.data)
                     throw errorModel
                 }catch let errorModelError {
                     throw errorModelError
