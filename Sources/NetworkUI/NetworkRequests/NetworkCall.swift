@@ -59,10 +59,12 @@ public extension NetworkCall {
     }
 ///NetworkUI: Start the request & return the `Model`
     func get() async throws -> Model {
-        return try await interface.retryingRequest(call: self).value
+        return try await interface.retryingRequest(call: self)
     }
 ///NetworkUI: Start the request and return its `Task`
     func task() async throws -> Task<Model, Error> {
-        return try await interface.retryingRequest(call: self)
+        return Task {
+            try await interface.retryingRequest(call: self)
+        }
     }
 }

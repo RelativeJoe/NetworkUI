@@ -18,25 +18,23 @@ public extension Network {
         try Task.checkCancellation()
         return try await resultBuilder(call: call, request: request, response: networkResult)
     }
-    func retryingRequest<Model: Decodable, ErrorModel: Error & Decodable>(call: NetworkCall<Model, ErrorModel>) async throws -> Task<Model, Error> {
-        Task {
-            let maxRetryCount = await call.maxRetryCount(configurationCount: configurations.retryCount)
-            if maxRetryCount > 0 {
-                for count in 0..<maxRetryCount {
-                    do {
-                        return try await request(call: call, requestCount: count)
-                    }catch {
-                        continue
-                    }
+    func retryingRequest<Model: Decodable, ErrorModel: Error & Decodable>(call: NetworkCall<Model, ErrorModel>) async throws -> Model {
+        let maxRetryCount = await call.maxRetryCount(configurationCount: configurations.retryCount)
+        if maxRetryCount > 0 {
+            for count in 0..<maxRetryCount {
+                do {
+                    return try await request(call: call, requestCount: count)
+                }catch {
+                    continue
                 }
             }
-            do {
-                return try await request(call: call, requestCount: maxRetryCount)
-            }catch {
-                await configurations.interceptor.callDidEnd(call)
-                await configurations.interceptor.handle(error)
-                throw error
-            }
+        }
+        do {
+            return try await request(call: call, requestCount: maxRetryCount)
+        }catch {
+            await configurations.interceptor.callDidEnd(call)
+            await configurations.interceptor.handle(error)
+            throw error
         }
     }
 ///NetworkUI: Build a request using a `Route`
