@@ -16,15 +16,18 @@ public struct NetworkError: Errorable {
     public var id = UUID()
     public var title: String?
     public var body: String?
+    public var responseStatus: ResponseStatus
 //MARK: - Initializer
-    public init(title: String? = nil, body: String? = nil) {
+    public init(title: String? = nil, body: String? = nil, responseStatus: ResponseStatus = .ok) {
         self.title = title
         self.body = body
+        self.responseStatus = responseStatus
     }
 //MARK: - Mappings
     public static let cancelled = NetworkError(title: "NetworkUI Cancelled", body: "NetworkUI Cancelled")
     public static func unnaceptable(status: ResponseStatus) -> Self {
-        NetworkError(title: "Unnaceptable Status Code", body: status.description)
+        NetworkError(title: "Unnaceptable Status Code", body: status.description, responseStatus: status)
+        
     }
     public var networkError: NetworkError {
         return self

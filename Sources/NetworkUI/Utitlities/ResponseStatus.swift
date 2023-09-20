@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum ResponseStatus: Sendable, Equatable, Hashable {
+public enum ResponseStatus: Sendable, Equatable, Hashable, Codable {
     /* use custom if you want to use a non-standard response code or
      have it available in a (UInt, String) pair from a higher-level web framework. */
     case custom(code: UInt, reasonPhrase: String)

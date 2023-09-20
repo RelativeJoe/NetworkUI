@@ -25,7 +25,11 @@ public extension Network {
                 do {
                     return try await request(call: call, requestCount: count)
                 }catch {
-                    continue
+                    if await configurations.interceptor.retry(call, dueTo: error) {
+                        continue
+                    }else {
+                        throw error
+                    }
                 }
             }
         }
