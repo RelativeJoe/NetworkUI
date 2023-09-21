@@ -21,10 +21,11 @@ public class RequestBuilder {
         return self
     }
     @discardableResult public func with(json: JSON?) -> Self {
-        if let json {
-            request.httpBody = json.data
-            headers.append(.content(type: .applicationJson))
+        guard let json else {
+            return self
         }
+        request.httpBody = json.data
+        headers.append(.content(type: .applicationJson))
         return self
     }
     @discardableResult public func with(headers: [Header]) -> Self {
@@ -32,6 +33,9 @@ public class RequestBuilder {
         return self
     }
     @discardableResult public func with(formData: [FormData]) -> Self {
+        guard !formData.isEmpty else {
+            return self
+        }
         let boundary = "Boundary-\(UUID().uuidString)"
         var body = Data()
         formData.forEach { parameter in
