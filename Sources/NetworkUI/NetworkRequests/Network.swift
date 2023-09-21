@@ -14,7 +14,8 @@ public actor Network: NetworkRequestable {
     }
 //MARK: - Request Builder
     internal func requestBuilder(route: Route) throws -> URLRequest {
-        let rawURL = route.baseURL ?? configurations.baseURL
+        let baseURL = route.baseURL ?? configurations.baseURL
+        let rawURL = route.route.applied(to: baseURL)
         let requestURL = configurations.reprocess(url: rawURL)
         guard let requestURL else {
             throw NetworkError(title: "Error", body: "The url is invalid!")
