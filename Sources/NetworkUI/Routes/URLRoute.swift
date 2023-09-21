@@ -17,64 +17,52 @@ extension URLQueryItem: URLable {}
 public struct URLRoute: URLable {
 //MARK: - Properties
     internal var components: [URLable]
-    internal var postComponents: [URLable]
 //MARK: - Initializers
     public init(from item: URLable) {
         self.components = [item]
-        self.postComponents = []
     }
-    internal init(components: [URLable], postComponents: [URLable]) {
+    internal init(components: [URLable]) {
         self.components = components
-        self.postComponents = postComponents
     }
 }
 
 //MARK: - Returning Functions
 public extension URLRoute {
-    func appending(_ component: (any URLable)?, isPost: Bool = false) -> Self {
+    func appending(_ component: (any URLable)?) -> Self {
         guard let component else {
             return self
         }
         var newComponents = components
-        var newPostComponents = postComponents
-        if isPost {
-             newPostComponents.append(component)
-        }else {
-            newComponents.append(component)
-        }
-        return URLRoute(components: newComponents, postComponents: newPostComponents)
+        newComponents.append(component)
+        return URLRoute(components: newComponents)
     }
 }
 
 //MARK: - Returning Functions Using Closures
 public extension URLRoute {
-    func appending(isPost: Bool = false, component: @escaping () throws -> (any URLable)?) rethrows -> Self {
-        return appending(try component(), isPost: isPost)
+    func appending(component: @escaping () throws -> (any URLable)?) rethrows -> Self {
+        return appending(try component())
     }
 }
 
 //MARK: - Mutating Functions
 public extension URLRoute {
-    mutating func append(_ component: (any URLable)?, isPost: Bool = false) {
+    mutating func append(_ component: (any URLable)?) {
         guard let component else {return}
-        if isPost {
-            postComponents.append(component)
-        }else {
-            components.append(component)
-        }
+        components.append(component)
     }
 }
 
 //MARK: - Mutating Functions Using Closures
 public extension URLRoute {
-    mutating func append(isPost: Bool = false, component: @escaping () throws -> (any URLable)?) rethrows {
-        append(try component(), isPost: isPost)
+    mutating func append(component: @escaping () throws -> (any URLable)?) rethrows {
+        append(try component())
     }
 }
 
 //MARK: - Public Functions
 public extension URLRoute {
-    static func proccess(_ url: URL?, components: [URLable]) -> URL? {
+    static func proccess(_ url: URL?, with components: [URLable]) -> URL? {
         return components.reduce(into: url) { newURL, item in
             if let string = item as? String {
                 if #available(macOS 13.0, iOS 16.0, *) {
@@ -94,14 +82,11 @@ public extension URLRoute {
             }else if let route = item as? URLRoute {
                 newURL = route.applied(to: url)
             }else if let iterable = item as? Iterable {
-                newURL = Self.proccess(newURL, components: iterable.parameters)
+                newURL = Self.proccess(newURL, with: iterable.parameters)
             }
         }
     }
     func applied(to url: URL?) -> URL? {
-        return Self.proccess(url, components: components)
-    }
-    func reproccessed(with url: URL?) -> URL? {
-        return Self.proccess(url, components: postComponents)
+        return Self.proccess(url, with: components)
     }
 }

@@ -35,9 +35,4 @@ internal extension URLRequest {
         cURL += method + url + header + data
         return cURL
     }
-    mutating func configure(headers: [Header]) {
-        headers.forEach { header in
-            addValue(header.value, forHTTPHeaderField: header.name)
-        }
-    }
 }

@@ -10,12 +10,12 @@ import Foundation
 public extension Network {
     func request<Model: Decodable, ErrorModel: Error & Decodable>(call: NetworkCall<Model, ErrorModel>, requestCount: Int) async throws -> Model {
         try Task.checkCancellation()
-        await configurations.interceptor.callDidStart(call)
         let request = try requestBuilder(route: call.route)
+        await configurations.interceptor.didStart(call: call, with: request)
         RequestLogger.start(request: request, count: requestCount)
         let networkResult = try await session.data(for: request)
-        await configurations.interceptor.responseDownloaded(networkResult, for: call)
         try Task.checkCancellation()
+        await configurations.interceptor.didEnd(call: call, with: networkResult)
         return try await resultBuilder(call: call, request: request, response: networkResult)
     }
     func retryingRequest<Model: Decodable, ErrorModel: Error & Decodable>(call: NetworkCall<Model, ErrorModel>) async throws -> Model {
@@ -25,7 +25,7 @@ public extension Network {
                 do {
                     return try await request(call: call, requestCount: count)
                 }catch {
-                    if await configurations.interceptor.retry(call, dueTo: error) {
+                    if await configurations.interceptor.shouldRetry(call: call, with: error, count: count) {
                         continue
                     }else {
                         throw error
@@ -36,8 +36,7 @@ public extension Network {
         do {
             return try await request(call: call, requestCount: maxRetryCount)
         }catch {
-            await configurations.interceptor.callDidEnd(call)
-            await configurations.interceptor.handle(error)
+            await configurations.interceptor.handle(call: call, with: error)
             throw error
         }
     }

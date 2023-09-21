@@ -25,10 +25,9 @@ public protocol Route {
     var retryCount: Int? {get}
 ///NetworkUI: Configure the id if the request
     var id: CustomStringConvertible {get}
-///NetworkUI: Reprocess the the url of the request after being built
-    func reprocess(url: URL?) -> URL?
 }
 
+//MARK: - Default Values
 public extension Route {
     var baseURL: URL? {
         return nil
@@ -44,9 +43,6 @@ public extension Route {
     }
     var body: JSON? {
         return nil
-    }
-    func reprocess(url: URL?) -> URL? {
-        return url
     }
     var formData: [FormData] {
         return []

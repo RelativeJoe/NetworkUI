@@ -33,3 +33,13 @@ public struct NetworkError: Errorable {
         return self
     }
 }
+
+enum NetworkErrorCode: Int, Codable {
+    case cancelled, unnaceptableStatusCode
+}
+
+extension Error {
+    var networkError: NetworkError? {
+        return self as? NetworkError
+    }
+}

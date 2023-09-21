@@ -7,25 +7,21 @@
 
 import Foundation
 
-
 public protocol Interceptor {
-    func handle(_ error: Error) async
-    func callDidStart<Model: Decodable, ErrorModel: Decodable>(_ call: NetworkCall<Model, ErrorModel>) async
-    func responseDownloaded<Model: Decodable, ErrorModel: Decodable>(_ response: (Data, URLResponse), for call: NetworkCall<Model, ErrorModel>) async
-    func callDidEnd<Model: Decodable, ErrorModel: Decodable>(_ call: NetworkCall<Model, ErrorModel>) async
-    func retry<Model: Decodable, ErrorModel: Decodable>(_ call: NetworkCall<Model, ErrorModel>, dueTo error: Error) async -> Bool
+    func didStart<Model: Decodable, ErrorModel: Decodable>(call: NetworkCall<Model, ErrorModel>, with request: URLRequest) async
+    func didEnd<Model: Decodable, ErrorModel: Decodable>(call: NetworkCall<Model, ErrorModel>, with response: (Data, URLResponse)) async
+    func handle<Model: Decodable, ErrorModel: Decodable>(call: NetworkCall<Model, ErrorModel>, with error: Error) async
+    func shouldRetry<Model: Decodable, ErrorModel: Decodable>(call: NetworkCall<Model, ErrorModel>, with error: Error, count: Int) async -> Bool
 }
 
 public struct DefaultInterceptor: Interceptor {
-    public func retry<Model, ErrorModel>(_ call: NetworkCall<Model, ErrorModel>, dueTo error: Error) async -> Bool where Model : Decodable, ErrorModel : Decodable, ErrorModel : Error {
+    public func didStart<Model: Decodable, ErrorModel: Decodable>(call: NetworkCall<Model, ErrorModel>, with request: URLRequest) async {
+    }
+    public func didEnd<Model: Decodable, ErrorModel: Decodable>(call: NetworkCall<Model, ErrorModel>, with response: (Data, URLResponse)) async {
+    }
+    public func handle<Model: Decodable, ErrorModel: Decodable>(call: NetworkCall<Model, ErrorModel>, with error: Error) async {
+    }
+    public func shouldRetry<Model, ErrorModel>(call: NetworkCall<Model, ErrorModel>, with error: Error, count: Int) async -> Bool {
         return true
-    }
-    public func handle(_ error: Error) async {
-    }
-    public func callDidStart<Model: Decodable, ErrorModel: Decodable>(_ call: NetworkCall<Model, ErrorModel>) async {
-    }
-    public func responseDownloaded<Model: Decodable, ErrorModel: Decodable>(_ response: (Data, URLResponse), for call: NetworkCall<Model, ErrorModel>) async {
-    }
-    public func callDidEnd<Model: Decodable, ErrorModel: Decodable>(_ call: NetworkCall<Model, ErrorModel>) async {
     }
 }

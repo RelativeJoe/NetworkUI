@@ -14,46 +14,18 @@ public actor Network: NetworkRequestable {
     }
 //MARK: - Request Builder
     internal func requestBuilder(route: Route) throws -> URLRequest {
-        var requestURL: URL?
-        if let baseURL = route.baseURL {
-            let reproccessed = route.route.reproccessed(with: route.reprocess(url: route.route.applied(to: baseURL)))
-            requestURL = reproccessed
-        }else if let baseURL = configurations.baseURL {
-            let reproccessed = route.route.reproccessed(with: configurations.reprocess(url: route.route.applied(to: baseURL)))
-            requestURL = reproccessed
-        }else {
-            throw NetworkError(title: "Error", body: "No Base URL found!")
-        }
+        let rawURL = route.baseURL ?? configurations.baseURL
+        let requestURL = configurations.reprocess(url: rawURL)
         guard let requestURL else {
-            throw NetworkError(title: "Error", body: "The constructed URL is invalid!")
+            throw NetworkError(title: "Error", body: "The url is invalid!")
         }
-        var request = URLRequest(url: requestURL, timeoutInterval:  configurations.timeoutInterval)
-        request.httpMethod = route.method.rawValue
-        request.cachePolicy = configurations.cachePolicy
-        var headers = route.headers
-        if let data = route.body?.data {
-            request.httpBody = data
-            headers.append(.content(type: .applicationJson))
-        }else if !route.formData.isEmpty {
-            let boundary = "Boundary-\(UUID().uuidString)"
-            var body = Data()
-            route.formData.forEach { parameter in
-                body.append("--\(boundary)\r\n".data(using: .utf8) ?? Data())
-                body.append("Content-Disposition:form-data; name=\"\(parameter.key)\"".data(using: .utf8) ?? Data())
-                if let stringValue = parameter.stringValue {
-                    body.append("\r\n\r\n\(stringValue)\r\n".data(using: .utf8) ?? Data())
-                }else if let dataValue = parameter.dataValue {
-                    body.append("; filename=\"\(parameter.fileName ?? UUID().uuidString)\"\r\nContent-Type: \"content-type header\"\r\n\r\n".data(using: .utf8) ?? Data())
-                    body.append(dataValue)
-                }
-            }
-            body.append("\r\n--\(boundary)--\r\n".data(using: .utf8) ?? Data())
-            request.httpBody = body
-            var header = Header.content(type: .multipartFormData)
-            header.value += boundary
-            headers.append(header)
-        }
-        request.configure(headers: headers)
+        let request = RequestBuilder(url: requestURL, cachePolicy: configurations.cachePolicy, timeoutInterval: configurations.timeoutInterval)
+            .with(method: route.method.rawValue)
+            .with(headers: route.headers)
+            .with(json: route.body)
+            .with(formData: route.formData)
+            .configureHeaders()
+            .build()
         return request
     }
 //MARK: - Result Builder
@@ -61,30 +33,19 @@ public actor Network: NetworkRequestable {
         let status = ResponseStatus(statusCode: (response.status as? HTTPURLResponse)?.statusCode ?? 0)
         RequestLogger.end(request: request, with: (response.data, status))
         if let map = call.map {
-            await configurations.interceptor.callDidEnd(call)
             return try map(status)
+        }
+        if let validity = call.validCode, !(try validity(status)) {
+            throw NetworkError.unnaceptable(status: status)
         }
         let decoder = call.decoder ?? configurations.decoder
         do {
-            let model = try decoder.decode(Model.self, from: response.data)
-            if model is EmptyData && call.errorModel != nil, let errorModel = try? decoder.decode(ErrorModel.self, from: response.data) {
-                throw errorModel
-            }
-            if let validity = call.validCode, !(try validity(status)) {
-                throw NetworkError.unnaceptable(status: status)
-            }
-            await configurations.interceptor.callDidEnd(call)
-            return model
-        }catch let modelError {
+            return try decoder.decode(Model.self, from: response.data)
+        }catch {
             if call.errorModel != nil {
-                do {
-                    let errorModel = try decoder.decode(ErrorModel.self, from: response.data)
-                    throw errorModel
-                }catch let errorModelError {
-                    throw errorModelError
-                }
+                throw try decoder.decode(ErrorModel.self, from: response.data)
             }
-            throw modelError
+            throw error
         }
     }
 }
